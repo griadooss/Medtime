@@ -114,15 +114,17 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Medication Name
               TextField(
                 controller: _nameController,
+                textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Medication Name',
                   hintText: 'e.g., Aspirin',
                   border: OutlineInputBorder(),
+                  alignLabelWithHint: true,
                 ),
               ),
               const SizedBox(height: 16),
@@ -130,11 +132,13 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
               // Strength
               TextField(
                 controller: _strengthController,
+                textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Strength (optional)',
                   hintText: 'e.g., 100mg, 50mg, 5ml',
                   border: OutlineInputBorder(),
                   helperText: 'Strength per unit (e.g., 100mg per tablet)',
+                  alignLabelWithHint: true,
                 ),
                 keyboardType: TextInputType.text,
               ),
@@ -144,9 +148,11 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
               Text(
                 'Unit Form',
                 style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              SegmentedButton<MedicationForm>(
+              Center(
+                child: SegmentedButton<MedicationForm>(
                 segments: const [
                   ButtonSegment<MedicationForm>(
                     value: MedicationForm.tablet,
@@ -171,10 +177,13 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                   });
                 },
               ),
+              ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: [
+              Center(
+                child: Wrap(
+                  spacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
                   MedicationForm.liquid,
                   MedicationForm.drops,
                   MedicationForm.spray,
@@ -193,17 +202,20 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                     },
                   );
                 }).toList(),
+                ),
               ),
               const SizedBox(height: 16),
 
               // Dosage Amount
               TextField(
                 controller: _dosageAmountController,
+                textAlign: TextAlign.center,
                 decoration: const InputDecoration(
                   labelText: 'Dosage Amount (optional)',
                   hintText: 'e.g., 1, 0.5, 0.25',
                   border: OutlineInputBorder(),
-                  helperText: 'How many units to take (1 = one, 0.5 = half, 0.25 = quarter)',
+                  helperText: 'Enter a number: 1 = one, 0.5 = half, 0.25 = quarter (will display as words)',
+                  alignLabelWithHint: true,
                 ),
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
@@ -213,13 +225,15 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
               Text(
                 'Category',
                 style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              SegmentedButton<MedicationCategory>(
+              Center(
+                child: SegmentedButton<MedicationCategory>(
                 segments: const [
                   ButtonSegment<MedicationCategory>(
                     value: MedicationCategory.prescription,
-                    label: Text('Prescription'),
+                    label: Text('Script'),
                     icon: Icon(Icons.medication),
                   ),
                   ButtonSegment<MedicationCategory>(
@@ -240,17 +254,21 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                   });
                 },
               ),
+              ),
               const SizedBox(height: 24),
 
               // Icon selection
               Text(
                 'Icon',
                 style: Theme.of(context).textTheme.titleMedium,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 12,
-                children: _availableIcons.map((iconName) {
+              Center(
+                child: Wrap(
+                  spacing: 12,
+                  alignment: WrapAlignment.center,
+                  children: _availableIcons.map((iconName) {
                   final isSelected = _iconName == iconName;
                   return ChoiceChip(
                     label: Icon(_getIconData(iconName)),
@@ -263,17 +281,19 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                     selectedColor: Colors.green[200],
                   );
                 }).toList(),
+                ),
               ),
               const SizedBox(height: 24),
 
               // Times
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     'Times',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  const SizedBox(width: 16),
                   IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: _addTime,
@@ -290,6 +310,7 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                           color: Colors.grey[500],
                           fontStyle: FontStyle.italic,
                         ),
+                    textAlign: TextAlign.center,
                   ),
                 )
               else
@@ -298,7 +319,10 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                   final time = entry.value;
                   return ListTile(
                     leading: const Icon(Icons.access_time),
-                    title: Text(time.format()),
+                    title: Text(
+                      time.format(),
+                      textAlign: TextAlign.center,
+                    ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () {
@@ -331,30 +355,34 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                 Text(
                   'Days of Week (leave empty for all days)',
                   style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
-                  ].asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final dayName = entry.value;
-                    final isSelected = _daysOfWeek.contains(index);
-                    return FilterChip(
-                      label: Text(dayName),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            _daysOfWeek.add(index);
-                          } else {
-                            _daysOfWeek.remove(index);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
+                Center(
+                  child: Wrap(
+                    spacing: 8,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+                    ].asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final dayName = entry.value;
+                      final isSelected = _daysOfWeek.contains(index);
+                      return FilterChip(
+                        label: Text(dayName),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          setState(() {
+                            if (selected) {
+                              _daysOfWeek.add(index);
+                            } else {
+                              _daysOfWeek.remove(index);
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ),
                 const SizedBox(height: 24),
               ],
@@ -396,9 +424,9 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                     if (_notificationBehavior == NotificationBehavior.remind) ...[
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
                             Text(
                               'Reminder Interval: ${_reminderIntervalMinutes ?? 15} minutes',
                               style: Theme.of(context).textTheme.bodyMedium,

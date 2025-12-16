@@ -176,6 +176,78 @@ class Medication {
     }
     return daysOfWeek.contains(dayOfWeek);
   }
+
+  /// Get formatted dosage string for display
+  String get formattedDosage {
+    if (strength != null && dosageAmount != null) {
+      final formLabel = _getFormLabel(form);
+      return '$strength $formLabel - Take ${_formatDosageAmount(dosageAmount!)} $formLabel';
+    } else if (dosageAmount != null) {
+      final formLabel = _getFormLabel(form);
+      return 'Take ${_formatDosageAmount(dosageAmount!)} $formLabel';
+    } else if (strength != null) {
+      final formLabel = _getFormLabel(form);
+      return '$strength $formLabel';
+    }
+    return '';
+  }
+
+  /// Get short dosage display (for cards)
+  String get shortDosageDisplay {
+    if (strength != null) {
+      return '($strength)';
+    }
+    return '';
+  }
+
+  /// Get dosage instruction (for cards)
+  String get dosageInstruction {
+    if (dosageAmount != null) {
+      final formLabel = _getFormLabel(form);
+      return 'Take ${_formatDosageAmount(dosageAmount!)} $formLabel';
+    }
+    return '';
+  }
+
+  String _formatDosageAmount(String amount) {
+    final num = double.tryParse(amount);
+    if (num == null) return amount;
+    
+    if (num == 1.0) return 'one';
+    if (num == 0.5) return 'half';
+    if (num == 0.25) return 'quarter';
+    if (num == 0.75) return 'three-quarters';
+    if (num == 1.5) return 'one and a half';
+    if (num == 2.0) return 'two';
+    if (num == 2.5) return 'two and a half';
+    if (num == 3.0) return 'three';
+    
+    // For other values, show as decimal
+    return num.toString();
+  }
+
+  String _getFormLabel(MedicationForm form) {
+    switch (form) {
+      case MedicationForm.tablet:
+        return 'tablet';
+      case MedicationForm.pill:
+        return 'pill';
+      case MedicationForm.capsule:
+        return 'capsule';
+      case MedicationForm.liquid:
+        return 'ml';
+      case MedicationForm.drops:
+        return 'drops';
+      case MedicationForm.spray:
+        return 'spray';
+      case MedicationForm.patch:
+        return 'patch';
+      case MedicationForm.injection:
+        return 'injection';
+      case MedicationForm.other:
+        return 'unit';
+    }
+  }
 }
 
 /// Notification behavior options

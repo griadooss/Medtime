@@ -99,7 +99,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       ),
                       const SizedBox(width: 8),
                       FilterChip(
-                        label: const Text('Prescription'),
+                        label: const Text('Script'),
                         selected: _filterCategory == MedicationCategory.prescription,
                         onSelected: (selected) {
                           setState(() {
@@ -260,10 +260,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                   const SizedBox(width: 12),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
                                 medication.name,
+                                textAlign: TextAlign.center,
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: medication.enabled
@@ -271,10 +272,11 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                           : Colors.grey[500],
                                     ),
                               ),
-                              if (medication.strength != null) ...[
+                              if (medication.strength != null && medication.strength!.isNotEmpty) ...[
                                 const SizedBox(height: 4),
                                 Text(
-                                  medication.shortDosageDisplay,
+                                  '(${medication.strength})',
+                                  textAlign: TextAlign.center,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                         color: Colors.grey[400],
                                       ),
@@ -284,33 +286,36 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   medication.dosageInstruction,
+                                  textAlign: TextAlign.center,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Colors.grey[500],
-                                        fontStyle: FontStyle.italic,
+                                        color: Colors.green[300],
                                       ),
                                 ),
                               ],
                               const SizedBox(height: 8),
                               // Category badge
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _getCategoryColor(medication.category).withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: _getCategoryColor(medication.category),
-                                    width: 1,
+                              Center(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
                                   ),
-                                ),
-                                child: Text(
-                                  _getCategoryLabel(medication.category),
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: _getCategoryColor(medication.category),
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                  decoration: BoxDecoration(
+                                    color: _getCategoryColor(medication.category).withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: _getCategoryColor(medication.category),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    _getCategoryLabel(medication.category),
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: _getCategoryColor(medication.category),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -328,43 +333,51 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
               ),
               const SizedBox(height: 12),
               // Times
-              Wrap(
-                spacing: 8,
-                children: medication.times.map((time) {
-                  return Chip(
-                    label: Text(
-                      time.format(),
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    backgroundColor: Colors.green[50],
-                    labelStyle: TextStyle(color: Colors.green[900]),
-                  );
-                }).toList(),
+              Center(
+                child: Wrap(
+                  spacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: medication.times.map((time) {
+                    return Chip(
+                      label: Text(
+                        time.format(),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      backgroundColor: Colors.green[50],
+                      labelStyle: TextStyle(color: Colors.green[900]),
+                    );
+                  }).toList(),
+                ),
               ),
               const SizedBox(height: 12),
               // Adherence stats
-              Row(
-                children: [
-                  Icon(Icons.check_circle, size: 16, color: Colors.green[300]),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${stats.taken}/${stats.total} taken (${stats.adherenceRate.toStringAsFixed(0)}%)',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[400],
-                        ),
-                  ),
-                  if (stats.missed > 0) ...[
-                    const SizedBox(width: 12),
-                    Icon(Icons.cancel, size: 16, color: Colors.red[300]),
+              Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle, size: 16, color: Colors.green[300]),
                     const SizedBox(width: 4),
                     Text(
-                      '${stats.missed} missed',
+                      '${stats.taken}/${stats.total} taken (${stats.adherenceRate.toStringAsFixed(0)}%)',
+                      textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.red[300],
+                            color: Colors.grey[400],
                           ),
                     ),
+                    if (stats.missed > 0) ...[
+                      const SizedBox(width: 12),
+                      Icon(Icons.cancel, size: 16, color: Colors.red[300]),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${stats.missed} missed',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.red[300],
+                            ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ],
           ),
@@ -391,7 +404,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
   String _getCategoryLabel(MedicationCategory category) {
     switch (category) {
       case MedicationCategory.prescription:
-        return 'Prescription';
+        return 'Script';
       case MedicationCategory.otc:
         return 'OTC';
       case MedicationCategory.other:

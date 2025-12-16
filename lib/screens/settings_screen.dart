@@ -58,11 +58,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'Notifications',
                         style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
                       Consumer<NotificationService>(
@@ -110,11 +111,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'Default Medication Settings',
                         style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -122,6 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.grey[500],
                             ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
 
@@ -129,13 +132,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Text(
                         'Default Category',
                         style: Theme.of(context).textTheme.titleSmall,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      SegmentedButton<MedicationCategory>(
+                      Center(
+                        child: SegmentedButton<MedicationCategory>(
                         segments: const [
                           ButtonSegment<MedicationCategory>(
                             value: MedicationCategory.prescription,
-                            label: Text('Prescription'),
+                            label: Text('Script'),
                             icon: Icon(Icons.medication),
                           ),
                           ButtonSegment<MedicationCategory>(
@@ -155,6 +160,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             _defaultCategory = newSelection.first;
                           });
                         },
+                        ),
                       ),
                       const SizedBox(height: 16),
 
@@ -162,11 +168,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Text(
                         'Default Icon',
                         style: Theme.of(context).textTheme.titleSmall,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 12,
-                        children: _availableIcons.map((iconName) {
+                      Center(
+                        child: Wrap(
+                          spacing: 12,
+                          alignment: WrapAlignment.center,
+                          children: _availableIcons.map((iconName) {
                           final isSelected = _defaultIconName == iconName;
                           return ChoiceChip(
                             label: Icon(_getIconData(iconName)),
@@ -179,6 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             selectedColor: Colors.green[200],
                           );
                         }).toList(),
+                        ),
                       ),
                       const SizedBox(height: 16),
 
@@ -186,6 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Text(
                         'Default Notification Behavior',
                         style: Theme.of(context).textTheme.titleSmall,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       RadioListTile<NotificationBehavior>(
@@ -218,11 +229,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
                                 'Default Reminder Interval: $_defaultReminderIntervalMinutes minutes',
                                 style: Theme.of(context).textTheme.bodyMedium,
+                                textAlign: TextAlign.center,
                               ),
                               Slider(
                                 value: _defaultReminderIntervalMinutes.toDouble(),
@@ -288,11 +300,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'Export Data',
                         style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -300,6 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.grey[500],
                             ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
                       Consumer2<MedicationService, AdherenceService>(
@@ -326,11 +340,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'About',
                         style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
                       ListTile(
