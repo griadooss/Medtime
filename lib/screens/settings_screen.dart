@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'dart:io';
 import '../services/medication_service.dart';
@@ -758,9 +759,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
       final filename = 'medtime_backup_$timestamp.json';
 
-      // Share the backup file
-      await Share.share(
-        jsonString,
+      // Create temporary file with .json extension
+      final directory = await getTemporaryDirectory();
+      final file = File('${directory.path}/$filename');
+      await file.writeAsString(jsonString);
+
+      // Share the backup file with proper filename and MIME type
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: 'application/json', name: filename)],
+        text: 'Medtime Backup',
         subject: 'Medtime Backup',
       );
 

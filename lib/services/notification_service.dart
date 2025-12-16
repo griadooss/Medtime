@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import '../models/medication.dart';
 import '../models/medication_dose.dart';
 
@@ -24,21 +23,12 @@ class NotificationService extends ChangeNotifier {
       // Initialize timezone
       tz.initializeTimeZones();
       
-      // Set local timezone to device's actual timezone
-      // Get the device's timezone name (e.g., "America/New_York", "Europe/London")
-      try {
-        final timeZoneName = await _getDeviceTimeZone();
-        if (timeZoneName != null) {
-          final location = tz.getLocation(timeZoneName);
-          tz.setLocalLocation(location);
-          debugPrint('Local timezone set to: ${tz.local.name}');
-        } else {
-          debugPrint('Could not get device timezone, using default: ${tz.local.name}');
-        }
-      } catch (e) {
-        debugPrint('Error setting local timezone: $e');
-        debugPrint('Using default timezone: ${tz.local.name}');
-      }
+      // Note: tz.local defaults to UTC, but we'll handle timezone conversion
+      // in the scheduling methods by using DateTime.now() which is in local time
+      // and converting properly using TZDateTime.now(tz.local).add() approach
+      debugPrint('Timezone initialized. Default timezone: ${tz.local.name}');
+      final now = DateTime.now();
+      debugPrint('Device timezone offset: ${now.timeZoneOffset.inHours} hours');
       
       // Request permissions first (before creating channels)
       final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
@@ -490,22 +480,6 @@ class NotificationService extends ChangeNotifier {
     return await _notifications.pendingNotificationRequests();
   }
 
-  /// Get device timezone name using platform channel
-  Future<String?> _getDeviceTimeZone() async {
-    try {
-      // Use flutter_native_timezone to get the actual timezone name
-      final timeZoneName = await FlutterNativeTimezone.getLocalTimezone();
-      debugPrint('Device timezone name: $timeZoneName');
-      return timeZoneName;
-    } catch (e) {
-      debugPrint('Error getting device timezone: $e');
-      // Fallback: try to determine from offset
-      final now = DateTime.now();
-      final offset = now.timeZoneOffset;
-      debugPrint('Device timezone offset: ${offset.inHours} hours');
-      return null;
-    }
-  }
 
   /// Schedule a reminder notification (for repeat behavior)
   Future<void> scheduleReminder(
