@@ -163,6 +163,25 @@ class AdherenceService extends ChangeNotifier {
     await _saveDoses();
     notifyListeners();
   }
+
+  /// Import doses from JSON (for backup restore)
+  Future<void> importDoses(List<dynamic> dosesJson) async {
+    try {
+      _doses = dosesJson
+          .map((json) => MedicationDose.fromJson(json as Map<String, dynamic>))
+          .toList();
+      await _saveDoses();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error importing doses: $e');
+      rethrow;
+    }
+  }
+
+  /// Export doses as JSON (for backup)
+  List<Map<String, dynamic>> exportDoses() {
+    return _doses.map((d) => d.toJson()).toList();
+  }
 }
 
 /// Adherence statistics

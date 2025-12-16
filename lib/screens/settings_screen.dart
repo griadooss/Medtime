@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:convert';
+import 'dart:io';
 import '../services/medication_service.dart';
 import '../services/adherence_service.dart';
 import '../services/notification_service.dart';
@@ -60,12 +63,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Notifications',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 12),
+                              Text(
+                                'Notifications',
+                                style: Theme.of(context).textTheme.titleMedium,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[900]?.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Notification sound with Bluetooth:',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Colors.blue[300],
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'If sound doesn\'t play through Bluetooth:\n'
+                                      '• Try disconnecting/reconnecting Bluetooth\n'
+                                      '• Check Settings → Connected devices → Bluetooth → [Your device]\n'
+                                      '  Ensure "Media audio" is enabled\n'
+                                      '• Sound works when Bluetooth is OFF\n'
+                                      '• This is a known Android Bluetooth routing behavior',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Colors.blue[300],
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 12),
                       Consumer<NotificationService>(
                         builder: (context, notificationService, child) {
                           return Column(
@@ -96,6 +131,137 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     child: const Text('Request Permission'),
                                   ),
                                 ),
+                              if (notificationService.permissionGranted) ...[
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      await notificationService.showTestNotification();
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Test notification sent'),
+                                            backgroundColor: Colors.green,
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    icon: const Icon(Icons.notifications_active),
+                                    label: const Text('Test Notification (Immediate)'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green[600],
+                                      minimumSize: const Size(double.infinity, 40),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      await notificationService.scheduleTestNotification(secondsFromNow: 10);
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Test notification scheduled for 10 seconds from now'),
+                                            backgroundColor: Colors.blue,
+                                            duration: Duration(seconds: 3),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    icon: const Icon(Icons.schedule),
+                                    label: const Text('Test Scheduled Notification (10s)'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue[600],
+                                      minimumSize: const Size(double.infinity, 40),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      final pending = await notificationService.getPendingNotifications();
+                                      final testNotification = pending.where((n) => n.id == 999998).toList();
+                                      if (context.mounted) {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text('Pending Notifications'),
+                                            content: SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    'Total: ${pending.length}',
+                                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                                  ),
+                                                  if (testNotification.isNotEmpty) ...[
+                                                    const SizedBox(height: 8),
+                                                    Container(
+                                                      padding: const EdgeInsets.all(8),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.green[900]?.withOpacity(0.3),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          const Text(
+                                                            'Test Notification Found:',
+                                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                                          ),
+                                                          Text('ID: ${testNotification.first.id}'),
+                                                          Text('Title: ${testNotification.first.title}'),
+                                                          Text('Body: ${testNotification.first.body}'),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  const SizedBox(height: 16),
+                                                  const Text(
+                                                    'Next 5 scheduled notifications:',
+                                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                                  ),
+                                                  ...pending.take(5).map((n) => Padding(
+                                                    padding: const EdgeInsets.only(top: 8),
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text('ID: ${n.id}'),
+                                                        Text('Title: ${n.title}'),
+                                                        Text('Body: ${n.body}'),
+                                                        const Divider(),
+                                                      ],
+                                                    ),
+                                                  )),
+                                                ],
+                                              ),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context),
+                                                child: const Text('Close'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    icon: const Icon(Icons.list),
+                                    label: const Text('Check Pending Notifications'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue[600],
+                                      minimumSize: const Size(double.infinity, 40),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           );
                         },
@@ -295,44 +461,106 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Data export section
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Export Data',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        textAlign: TextAlign.center,
+                      // Data export section
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Export Data',
+                                style: Theme.of(context).textTheme.titleMedium,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Export medications and adherence data to CSV',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.grey[500],
+                                    ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 12),
+                              Consumer2<MedicationService, AdherenceService>(
+                                builder: (context, medicationService, adherenceService, child) {
+                                  return ElevatedButton.icon(
+                                    onPressed: () => _exportData(context, medicationService, adherenceService),
+                                    icon: const Icon(Icons.file_download),
+                                    label: const Text('Export to CSV'),
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: const Size(double.infinity, 48),
+                                      backgroundColor: Colors.green[600],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Export medications and adherence data to CSV',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[500],
-                            ),
-                        textAlign: TextAlign.center,
+                      const SizedBox(height: 16),
+
+                      // Backup & Restore section
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Backup & Restore',
+                                style: Theme.of(context).textTheme.titleMedium,
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange[900]?.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '⚠️ WARNING: Uninstalling the app will delete all your data!\n'
+                                  'Always backup before uninstalling or updating.',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Colors.orange[300],
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Consumer3<MedicationService, AdherenceService, AppSettingsService>(
+                                builder: (context, medicationService, adherenceService, settingsService, child) {
+                                  return Column(
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () => _backupData(context, medicationService, adherenceService, settingsService),
+                                        icon: const Icon(Icons.backup),
+                                        label: const Text('Backup All Data (JSON)'),
+                                        style: ElevatedButton.styleFrom(
+                                          minimumSize: const Size(double.infinity, 48),
+                                          backgroundColor: Colors.blue[600],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      OutlinedButton.icon(
+                                        onPressed: () => _restoreData(context, medicationService, adherenceService, settingsService),
+                                        icon: const Icon(Icons.restore),
+                                        label: const Text('Restore from Backup'),
+                                        style: OutlinedButton.styleFrom(
+                                          minimumSize: const Size(double.infinity, 48),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Consumer2<MedicationService, AdherenceService>(
-                        builder: (context, medicationService, adherenceService, child) {
-                          return ElevatedButton.icon(
-                            onPressed: () => _exportData(context, medicationService, adherenceService),
-                            icon: const Icon(Icons.file_download),
-                            label: const Text('Export to CSV'),
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 48),
-                              backgroundColor: Colors.green[600],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
               const SizedBox(height: 16),
 
               // About section
@@ -508,6 +736,133 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       // Handle error
+    }
+  }
+
+  Future<void> _backupData(
+    BuildContext context,
+    MedicationService medicationService,
+    AdherenceService adherenceService,
+    AppSettingsService settingsService,
+  ) async {
+    try {
+      final backup = {
+        'version': '1.0',
+        'exportedAt': DateTime.now().toIso8601String(),
+        'medications': medicationService.exportMedications(),
+        'doses': adherenceService.exportDoses(),
+        'settings': settingsService.exportSettings(),
+      };
+
+      final jsonString = const JsonEncoder.withIndent('  ').convert(backup);
+      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
+      final filename = 'medtime_backup_$timestamp.json';
+
+      // Share the backup file
+      await Share.share(
+        jsonString,
+        subject: 'Medtime Backup',
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Backup created: $filename\nSave this file to restore your data later.'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Backup failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _restoreData(
+    BuildContext context,
+    MedicationService medicationService,
+    AdherenceService adherenceService,
+    AppSettingsService settingsService,
+  ) async {
+    try {
+      // Show confirmation dialog
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Restore Backup'),
+          content: const Text(
+            'This will replace all current data with the backup.\n\n'
+            'Are you sure you want to continue?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text('Restore'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmed != true) return;
+
+      // Pick backup file
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.single.path == null) {
+        return; // User cancelled
+      }
+
+      // Read and parse backup file
+      final file = File(result.files.single.path!);
+      final jsonString = await file.readAsString();
+      final backup = json.decode(jsonString) as Map<String, dynamic>;
+
+      // Restore data
+      await medicationService.importMedications(backup['medications'] as List<dynamic>);
+      await adherenceService.importDoses(backup['doses'] as List<dynamic>);
+      await settingsService.importSettings(backup['settings'] as Map<String, dynamic>);
+
+      // Reschedule notifications for all medications
+      final notificationService = context.read<NotificationService>();
+      for (final medication in medicationService.medications) {
+        if (medication.enabled) {
+          await notificationService.scheduleMedicationNotifications(medication);
+        }
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Backup restored successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Restore failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

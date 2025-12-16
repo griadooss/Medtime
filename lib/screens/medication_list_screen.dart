@@ -180,32 +180,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                     itemCount: medications.length,
                     itemBuilder: (context, index) {
                       final medication = medications[index];
-                      // Show category header if this is the first item of a category
-                      final showCategoryHeader = index == 0 ||
-                          medications[index - 1].category != medication.category;
-                      
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (showCategoryHeader && _filterCategory == null) ...[
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: 8,
-                                top: index == 0 ? 0 : 16,
-                                bottom: 8,
-                              ),
-                              child: Text(
-                                _getCategoryLabel(medication.category),
-                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                      color: Colors.grey[400],
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                            ),
-                          ],
-                          _buildMedicationCard(context, medication),
-                        ],
-                      );
+                      return _buildMedicationCard(context, medication);
                     },
                   ),
                 ),

@@ -118,5 +118,53 @@ class AppSettingsService extends ChangeNotifier {
     _defaultCategory = category;
     notifyListeners();
   }
+
+  /// Export settings as JSON (for backup)
+  Map<String, dynamic> exportSettings() {
+    return {
+      'defaultIconName': _defaultIconName,
+      'defaultEnabled': _defaultEnabled,
+      'defaultNotificationBehavior': _defaultNotificationBehavior.name,
+      'defaultReminderIntervalMinutes': _defaultReminderIntervalMinutes,
+      'defaultSkipWeekends': _defaultSkipWeekends,
+      'defaultCategory': _defaultCategory.name,
+    };
+  }
+
+  /// Import settings from JSON (for backup restore)
+  Future<void> importSettings(Map<String, dynamic> settingsJson) async {
+    try {
+      _defaultIconName = settingsJson['defaultIconName'] ?? 'medication';
+      _defaultEnabled = settingsJson['defaultEnabled'] ?? true;
+      
+      final behaviorString = settingsJson['defaultNotificationBehavior'];
+      if (behaviorString != null) {
+        _defaultNotificationBehavior = NotificationBehavior.values.firstWhere(
+          (e) => e.name == behaviorString,
+          orElse: () => NotificationBehavior.dismiss,
+        );
+      }
+      
+      _defaultReminderIntervalMinutes = settingsJson['defaultReminderIntervalMinutes'] ?? 15;
+      _defaultSkipWeekends = settingsJson['defaultSkipWeekends'] ?? false;
+      
+      final categoryString = settingsJson['defaultCategory'];
+      if (categoryString != null) {
+        try {
+          _defaultCategory = MedicationCategory.values.firstWhere(
+            (e) => e.name == categoryString,
+            orElse: () => MedicationCategory.other,
+          );
+        } catch (e) {
+          _defaultCategory = MedicationCategory.other;
+        }
+      }
+      
+      await saveSettings();
+    } catch (e) {
+      debugPrint('Error importing settings: $e');
+      rethrow;
+    }
+  }
 }
 

@@ -97,5 +97,24 @@ class MedicationService extends ChangeNotifier {
       await updateMedication(updated);
     }
   }
+
+  /// Import medications from JSON (for backup restore)
+  Future<void> importMedications(List<dynamic> medicationsJson) async {
+    try {
+      _medications = medicationsJson
+          .map((json) => Medication.fromJson(json as Map<String, dynamic>))
+          .toList();
+      await _saveMedications();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error importing medications: $e');
+      rethrow;
+    }
+  }
+
+  /// Export medications as JSON (for backup)
+  List<Map<String, dynamic>> exportMedications() {
+    return _medications.map((m) => m.toJson()).toList();
+  }
 }
 

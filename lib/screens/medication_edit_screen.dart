@@ -352,37 +352,70 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
 
               // Days selection (if not skipping weekends)
               if (!_skipWeekends) ...[
-                Text(
-                  'Days of Week (leave empty for all days)',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Wrap(
-                    spacing: 8,
-                    alignment: WrapAlignment.center,
-                    children: [
-                      'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
-                    ].asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final dayName = entry.value;
-                      final isSelected = _daysOfWeek.contains(index);
-                      return FilterChip(
-                        label: Text(dayName),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _daysOfWeek.add(index);
-                            } else {
-                              _daysOfWeek.remove(index);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Days of Week',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: _daysOfWeek.isEmpty 
+                            ? Colors.green[900]?.withOpacity(0.3)
+                            : Colors.grey[800]?.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _daysOfWeek.isEmpty 
+                              ? Colors.green[300]!
+                              : Colors.grey[600]!,
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        _daysOfWeek.isEmpty 
+                            ? '✓ All days selected (every day)'
+                            : '${_daysOfWeek.length} day(s) selected',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: _daysOfWeek.isEmpty 
+                                  ? Colors.green[300]
+                                  : Colors.grey[400],
+                              fontWeight: FontWeight.w500,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Wrap(
+                        spacing: 8,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+                        ].asMap().entries.map((entry) {
+                          final index = entry.key;
+                          final dayName = entry.value;
+                          final isSelected = _daysOfWeek.contains(index);
+                          return FilterChip(
+                            label: Text(dayName),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _daysOfWeek.add(index);
+                                } else {
+                                  _daysOfWeek.remove(index);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
               ],

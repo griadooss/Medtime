@@ -17,6 +17,8 @@ dependencies:
   path_provider: ^2.1.1
   share_plus: ^7.2.1
   url_launcher: ^6.2.2
+  file_picker: ^8.0.0
+  flutter_native_timezone: ^2.0.0
 
 dev_dependencies:
   flutter_test:

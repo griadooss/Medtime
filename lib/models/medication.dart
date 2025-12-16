@@ -172,7 +172,7 @@ class Medication {
       return false; // Skip weekends
     }
     if (daysOfWeek.isEmpty) {
-      return true; // All days
+      return true; // All days (empty list means every day)
     }
     return daysOfWeek.contains(dayOfWeek);
   }
