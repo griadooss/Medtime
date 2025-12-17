@@ -1,4 +1,3 @@
-
 /// Model representing a single dose that was scheduled or taken
 class MedicationDose {
   final String id;
@@ -98,4 +97,3 @@ enum AdherenceStatus {
   missed, // Past due and not taken
   skipped, // User explicitly skipped
 }
-

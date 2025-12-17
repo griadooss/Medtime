@@ -20,14 +20,15 @@ class AdherenceService extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final dosesJson = prefs.getString('medication_doses');
-      
+
       if (dosesJson != null) {
         final List<dynamic> decoded = json.decode(dosesJson);
         _doses = decoded
-            .map((json) => MedicationDose.fromJson(json as Map<String, dynamic>))
+            .map(
+                (json) => MedicationDose.fromJson(json as Map<String, dynamic>))
             .toList();
       }
-      
+
       _isLoaded = true;
       notifyListeners();
     } catch (e) {
@@ -93,7 +94,8 @@ class AdherenceService extends ChangeNotifier {
 
   /// Get doses for a specific date
   List<MedicationDose> getDosesForDate(DateTime date) {
-    final dateString = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final dateString =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     return _doses.where((d) => d.dateString == dateString).toList();
   }
 
@@ -101,18 +103,19 @@ class AdherenceService extends ChangeNotifier {
   AdherenceStats getAdherenceStats(String medicationId, {int days = 30}) {
     final now = DateTime.now();
     final cutoffDate = now.subtract(Duration(days: days));
-    
-    final relevantDoses = _doses.where((d) =>
-      d.medicationId == medicationId &&
-      d.scheduledTime.isAfter(cutoffDate)
-    ).toList();
+
+    final relevantDoses = _doses
+        .where((d) =>
+            d.medicationId == medicationId &&
+            d.scheduledTime.isAfter(cutoffDate))
+        .toList();
 
     final taken = relevantDoses.where((d) => d.isTaken).length;
     final missed = relevantDoses.where((d) => d.isMissed(now)).length;
     final skipped = relevantDoses.where((d) => d.skipped).length;
-    final pending = relevantDoses.where((d) => 
-      !d.isTaken && !d.skipped && !d.isMissed(now)
-    ).length;
+    final pending = relevantDoses
+        .where((d) => !d.isTaken && !d.skipped && !d.isMissed(now))
+        .length;
 
     final total = relevantDoses.length;
     final adherenceRate = total > 0 ? (taken / total * 100) : 0.0;
@@ -131,17 +134,16 @@ class AdherenceService extends ChangeNotifier {
   AdherenceStats getOverallAdherenceStats({int days = 30}) {
     final now = DateTime.now();
     final cutoffDate = now.subtract(Duration(days: days));
-    
-    final relevantDoses = _doses.where((d) =>
-      d.scheduledTime.isAfter(cutoffDate)
-    ).toList();
+
+    final relevantDoses =
+        _doses.where((d) => d.scheduledTime.isAfter(cutoffDate)).toList();
 
     final taken = relevantDoses.where((d) => d.isTaken).length;
     final missed = relevantDoses.where((d) => d.isMissed(now)).length;
     final skipped = relevantDoses.where((d) => d.skipped).length;
-    final pending = relevantDoses.where((d) => 
-      !d.isTaken && !d.skipped && !d.isMissed(now)
-    ).length;
+    final pending = relevantDoses
+        .where((d) => !d.isTaken && !d.skipped && !d.isMissed(now))
+        .length;
 
     final total = relevantDoses.length;
     final adherenceRate = total > 0 ? (taken / total * 100) : 0.0;
@@ -202,4 +204,3 @@ class AdherenceStats {
     required this.adherenceRate,
   });
 }
-

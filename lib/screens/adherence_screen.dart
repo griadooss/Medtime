@@ -71,9 +71,10 @@ class AdherenceScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         '${overallStats.adherenceRate.toStringAsFixed(1)}% adherence rate',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.green[300],
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.green[300],
+                                ),
                       ),
                     ],
                   ),
@@ -140,7 +141,8 @@ class AdherenceScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
-                          value: stats.total > 0 ? stats.adherenceRate / 100 : 0,
+                          value:
+                              stats.total > 0 ? stats.adherenceRate / 100 : 0,
                           backgroundColor: Colors.grey[800],
                           valueColor: AlwaysStoppedAnimation<Color>(
                             Colors.green[400]!,
@@ -150,9 +152,10 @@ class AdherenceScreen extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '${stats.adherenceRate.toStringAsFixed(1)}% adherence',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey[400],
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.grey[400],
+                                  ),
                         ),
                       ],
                     ),
@@ -192,4 +195,3 @@ class AdherenceScreen extends StatelessWidget {
     );
   }
 }
-

@@ -21,14 +21,14 @@ class MedicationService extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final medicationsJson = prefs.getString('medications');
-      
+
       if (medicationsJson != null) {
         final List<dynamic> decoded = json.decode(medicationsJson);
         _medications = decoded
             .map((json) => Medication.fromJson(json as Map<String, dynamic>))
             .toList();
       }
-      
+
       _isLoaded = true;
       notifyListeners();
     } catch (e) {
@@ -117,4 +117,3 @@ class MedicationService extends ChangeNotifier {
     return _medications.map((m) => m.toJson()).toList();
   }
 }
-
