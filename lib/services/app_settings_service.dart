@@ -7,7 +7,8 @@ class AppSettingsService extends ChangeNotifier {
   // Default medication settings
   String _defaultIconName = 'medication';
   bool _defaultEnabled = true;
-  NotificationBehavior _defaultNotificationBehavior = NotificationBehavior.dismiss;
+  NotificationBehavior _defaultNotificationBehavior =
+      NotificationBehavior.dismiss;
   int _defaultReminderIntervalMinutes = 15;
   bool _defaultSkipWeekends = false;
   MedicationCategory _defaultCategory = MedicationCategory.other;
@@ -15,7 +16,8 @@ class AppSettingsService extends ChangeNotifier {
   // Getters
   String get defaultIconName => _defaultIconName;
   bool get defaultEnabled => _defaultEnabled;
-  NotificationBehavior get defaultNotificationBehavior => _defaultNotificationBehavior;
+  NotificationBehavior get defaultNotificationBehavior =>
+      _defaultNotificationBehavior;
   int get defaultReminderIntervalMinutes => _defaultReminderIntervalMinutes;
   bool get defaultSkipWeekends => _defaultSkipWeekends;
   MedicationCategory get defaultCategory => _defaultCategory;
@@ -28,10 +30,10 @@ class AppSettingsService extends ChangeNotifier {
   Future<void> _loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       _defaultIconName = prefs.getString('defaultIconName') ?? 'medication';
       _defaultEnabled = prefs.getBool('defaultEnabled') ?? true;
-      
+
       final behaviorString = prefs.getString('defaultNotificationBehavior');
       if (behaviorString != null) {
         _defaultNotificationBehavior = NotificationBehavior.values.firstWhere(
@@ -39,10 +41,11 @@ class AppSettingsService extends ChangeNotifier {
           orElse: () => NotificationBehavior.dismiss,
         );
       }
-      
-      _defaultReminderIntervalMinutes = prefs.getInt('defaultReminderIntervalMinutes') ?? 15;
+
+      _defaultReminderIntervalMinutes =
+          prefs.getInt('defaultReminderIntervalMinutes') ?? 15;
       _defaultSkipWeekends = prefs.getBool('defaultSkipWeekends') ?? false;
-      
+
       final categoryString = prefs.getString('defaultCategory');
       if (categoryString != null) {
         try {
@@ -56,7 +59,7 @@ class AppSettingsService extends ChangeNotifier {
       } else {
         _defaultCategory = MedicationCategory.other;
       }
-      
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading app settings: $e');
@@ -67,14 +70,16 @@ class AppSettingsService extends ChangeNotifier {
   Future<void> saveSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       await prefs.setString('defaultIconName', _defaultIconName);
       await prefs.setBool('defaultEnabled', _defaultEnabled);
-      await prefs.setString('defaultNotificationBehavior', _defaultNotificationBehavior.name);
-      await prefs.setInt('defaultReminderIntervalMinutes', _defaultReminderIntervalMinutes);
+      await prefs.setString(
+          'defaultNotificationBehavior', _defaultNotificationBehavior.name);
+      await prefs.setInt(
+          'defaultReminderIntervalMinutes', _defaultReminderIntervalMinutes);
       await prefs.setBool('defaultSkipWeekends', _defaultSkipWeekends);
       await prefs.setString('defaultCategory', _defaultCategory.name);
-      
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error saving app settings: $e');
@@ -136,7 +141,7 @@ class AppSettingsService extends ChangeNotifier {
     try {
       _defaultIconName = settingsJson['defaultIconName'] ?? 'medication';
       _defaultEnabled = settingsJson['defaultEnabled'] ?? true;
-      
+
       final behaviorString = settingsJson['defaultNotificationBehavior'];
       if (behaviorString != null) {
         _defaultNotificationBehavior = NotificationBehavior.values.firstWhere(
@@ -144,10 +149,11 @@ class AppSettingsService extends ChangeNotifier {
           orElse: () => NotificationBehavior.dismiss,
         );
       }
-      
-      _defaultReminderIntervalMinutes = settingsJson['defaultReminderIntervalMinutes'] ?? 15;
+
+      _defaultReminderIntervalMinutes =
+          settingsJson['defaultReminderIntervalMinutes'] ?? 15;
       _defaultSkipWeekends = settingsJson['defaultSkipWeekends'] ?? false;
-      
+
       final categoryString = settingsJson['defaultCategory'];
       if (categoryString != null) {
         try {
@@ -159,7 +165,7 @@ class AppSettingsService extends ChangeNotifier {
           _defaultCategory = MedicationCategory.other;
         }
       }
-      
+
       await saveSettings();
     } catch (e) {
       debugPrint('Error importing settings: $e');
@@ -167,4 +173,3 @@ class AppSettingsService extends ChangeNotifier {
     }
   }
 }
-

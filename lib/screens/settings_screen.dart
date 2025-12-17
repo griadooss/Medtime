@@ -41,7 +41,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _defaultIconName = settingsService.defaultIconName;
     _defaultEnabled = settingsService.defaultEnabled;
     _defaultNotificationBehavior = settingsService.defaultNotificationBehavior;
-    _defaultReminderIntervalMinutes = settingsService.defaultReminderIntervalMinutes;
+    _defaultReminderIntervalMinutes =
+        settingsService.defaultReminderIntervalMinutes;
     _defaultSkipWeekends = settingsService.defaultSkipWeekends;
     _defaultCategory = settingsService.defaultCategory;
   }
@@ -64,44 +65,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                              Text(
-                                'Notifications',
-                                style: Theme.of(context).textTheme.titleMedium,
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue[900]?.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Notification sound with Bluetooth:',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Colors.blue[300],
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'If sound doesn\'t play through Bluetooth:\n'
-                                      '• Try disconnecting/reconnecting Bluetooth\n'
-                                      '• Check Settings → Connected devices → Bluetooth → [Your device]\n'
-                                      '  Ensure "Media audio" is enabled\n'
-                                      '• Sound works when Bluetooth is OFF\n'
-                                      '• This is a known Android Bluetooth routing behavior',
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Colors.blue[300],
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 12),
+                      Text(
+                        'Notifications',
+                        style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[900]?.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Notification sound with Bluetooth:',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.blue[300],
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'If sound doesn\'t play through Bluetooth:\n'
+                              '• Try disconnecting/reconnecting Bluetooth\n'
+                              '• Check Settings → Connected devices → Bluetooth → [Your device]\n'
+                              '  Ensure "Media audio" is enabled\n'
+                              '• Sound works when Bluetooth is OFF\n'
+                              '• This is a known Android Bluetooth routing behavior',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Colors.blue[300],
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       Consumer<NotificationService>(
                         builder: (context, notificationService, child) {
                           return Column(
@@ -119,12 +126,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                 ),
                                 trailing: notificationService.permissionGranted
-                                    ? Icon(Icons.check_circle, color: Colors.green[300])
-                                    : Icon(Icons.warning, color: Colors.orange[300]),
+                                    ? Icon(Icons.check_circle,
+                                        color: Colors.green[300])
+                                    : Icon(Icons.warning,
+                                        color: Colors.orange[300]),
                               ),
                               if (!notificationService.permissionGranted)
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       await notificationService.initialize();
@@ -135,38 +145,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               if (notificationService.permissionGranted) ...[
                                 const SizedBox(height: 8),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
                                   child: ElevatedButton.icon(
                                     onPressed: () async {
-                                      await notificationService.showTestNotification();
+                                      await notificationService
+                                          .showTestNotification();
                                       if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
-                                            content: Text('Test notification sent'),
+                                            content:
+                                                Text('Test notification sent'),
                                             backgroundColor: Colors.green,
                                             duration: Duration(seconds: 2),
                                           ),
                                         );
                                       }
                                     },
-                                    icon: const Icon(Icons.notifications_active),
-                                    label: const Text('Test Notification (Immediate)'),
+                                    icon:
+                                        const Icon(Icons.notifications_active),
+                                    label: const Text(
+                                        'Test Notification (Immediate)'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.green[600],
-                                      minimumSize: const Size(double.infinity, 40),
+                                      minimumSize:
+                                          const Size(double.infinity, 40),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
                                   child: ElevatedButton.icon(
                                     onPressed: () async {
-                                      await notificationService.scheduleTestNotification(secondsFromNow: 10);
+                                      await notificationService
+                                          .scheduleTestNotification(
+                                              secondsFromNow: 10);
                                       if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
-                                            content: Text('Test notification scheduled for 10 seconds from now'),
+                                            content: Text(
+                                                'Test notification scheduled for 10 seconds from now'),
                                             backgroundColor: Colors.blue,
                                             duration: Duration(seconds: 3),
                                           ),
@@ -174,52 +196,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       }
                                     },
                                     icon: const Icon(Icons.schedule),
-                                    label: const Text('Test Scheduled Notification (10s)'),
+                                    label: const Text(
+                                        'Test Scheduled Notification (10s)'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.blue[600],
-                                      minimumSize: const Size(double.infinity, 40),
+                                      minimumSize:
+                                          const Size(double.infinity, 40),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
                                   child: ElevatedButton.icon(
                                     onPressed: () async {
-                                      final pending = await notificationService.getPendingNotifications();
-                                      final testNotification = pending.where((n) => n.id == 999998).toList();
+                                      final pending = await notificationService
+                                          .getPendingNotifications();
+                                      final testNotification = pending
+                                          .where((n) => n.id == 999998)
+                                          .toList();
                                       if (context.mounted) {
                                         showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
-                                            title: const Text('Pending Notifications'),
+                                            title: const Text(
+                                                'Pending Notifications'),
                                             content: SingleChildScrollView(
                                               child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Text(
                                                     'Total: ${pending.length}',
-                                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                                    style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
-                                                  if (testNotification.isNotEmpty) ...[
+                                                  if (testNotification
+                                                      .isNotEmpty) ...[
                                                     const SizedBox(height: 8),
                                                     Container(
-                                                      padding: const EdgeInsets.all(8),
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8),
                                                       decoration: BoxDecoration(
-                                                        color: Colors.green[900]?.withOpacity(0.3),
-                                                        borderRadius: BorderRadius.circular(4),
+                                                        color: Colors.green[900]
+                                                            ?.withOpacity(0.3),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(4),
                                                       ),
                                                       child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
                                                         children: [
                                                           const Text(
                                                             'Test Notification Found:',
-                                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
                                                           ),
-                                                          Text('ID: ${testNotification.first.id}'),
-                                                          Text('Title: ${testNotification.first.title}'),
-                                                          Text('Body: ${testNotification.first.body}'),
+                                                          Text(
+                                                              'ID: ${testNotification.first.id}'),
+                                                          Text(
+                                                              'Title: ${testNotification.first.title}'),
+                                                          Text(
+                                                              'Body: ${testNotification.first.body}'),
                                                         ],
                                                       ),
                                                     ),
@@ -227,26 +273,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   const SizedBox(height: 16),
                                                   const Text(
                                                     'Next 5 scheduled notifications:',
-                                                    style: TextStyle(fontWeight: FontWeight.bold),
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
                                                   ),
-                                                  ...pending.take(5).map((n) => Padding(
-                                                    padding: const EdgeInsets.only(top: 8),
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text('ID: ${n.id}'),
-                                                        Text('Title: ${n.title}'),
-                                                        Text('Body: ${n.body}'),
-                                                        const Divider(),
-                                                      ],
-                                                    ),
-                                                  )),
+                                                  ...pending.take(5).map((n) =>
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 8),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text('ID: ${n.id}'),
+                                                            Text(
+                                                                'Title: ${n.title}'),
+                                                            Text(
+                                                                'Body: ${n.body}'),
+                                                            const Divider(),
+                                                          ],
+                                                        ),
+                                                      )),
                                                 ],
                                               ),
                                             ),
                                             actions: [
                                               TextButton(
-                                                onPressed: () => Navigator.pop(context),
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
                                                 child: const Text('Close'),
                                               ),
                                             ],
@@ -255,10 +311,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       }
                                     },
                                     icon: const Icon(Icons.list),
-                                    label: const Text('Check Pending Notifications'),
+                                    label: const Text(
+                                        'Check Pending Notifications'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.blue[600],
-                                      minimumSize: const Size(double.infinity, 40),
+                                      minimumSize:
+                                          const Size(double.infinity, 40),
                                     ),
                                   ),
                                 ),
@@ -304,29 +362,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 8),
                       Center(
                         child: SegmentedButton<MedicationCategory>(
-                        segments: const [
-                          ButtonSegment<MedicationCategory>(
-                            value: MedicationCategory.prescription,
-                            label: Text('Script'),
-                            icon: Icon(Icons.medication),
-                          ),
-                          ButtonSegment<MedicationCategory>(
-                            value: MedicationCategory.otc,
-                            label: Text('OTC'),
-                            icon: Icon(Icons.local_pharmacy),
-                          ),
-                          ButtonSegment<MedicationCategory>(
-                            value: MedicationCategory.other,
-                            label: Text('Other'),
-                            icon: Icon(Icons.category),
-                          ),
-                        ],
-                        selected: {_defaultCategory},
-                        onSelectionChanged: (Set<MedicationCategory> newSelection) {
-                          setState(() {
-                            _defaultCategory = newSelection.first;
-                          });
-                        },
+                          segments: const [
+                            ButtonSegment<MedicationCategory>(
+                              value: MedicationCategory.prescription,
+                              label: Text('Script'),
+                              icon: Icon(Icons.medication),
+                            ),
+                            ButtonSegment<MedicationCategory>(
+                              value: MedicationCategory.otc,
+                              label: Text('OTC'),
+                              icon: Icon(Icons.local_pharmacy),
+                            ),
+                            ButtonSegment<MedicationCategory>(
+                              value: MedicationCategory.other,
+                              label: Text('Other'),
+                              icon: Icon(Icons.category),
+                            ),
+                          ],
+                          selected: {_defaultCategory},
+                          onSelectionChanged:
+                              (Set<MedicationCategory> newSelection) {
+                            setState(() {
+                              _defaultCategory = newSelection.first;
+                            });
+                          },
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -343,18 +402,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           spacing: 12,
                           alignment: WrapAlignment.center,
                           children: _availableIcons.map((iconName) {
-                          final isSelected = _defaultIconName == iconName;
-                          return ChoiceChip(
-                            label: Icon(_getIconData(iconName)),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              setState(() {
-                                _defaultIconName = iconName;
-                              });
-                            },
-                            selectedColor: Colors.green[200],
-                          );
-                        }).toList(),
+                            final isSelected = _defaultIconName == iconName;
+                            return ChoiceChip(
+                              label: Icon(_getIconData(iconName)),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _defaultIconName = iconName;
+                                });
+                              },
+                              selectedColor: Colors.green[200],
+                            );
+                          }).toList(),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -392,7 +451,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           }
                         },
                       ),
-                      if (_defaultNotificationBehavior == NotificationBehavior.remind) ...[
+                      if (_defaultNotificationBehavior ==
+                          NotificationBehavior.remind) ...[
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
@@ -404,14 +464,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 textAlign: TextAlign.center,
                               ),
                               Slider(
-                                value: _defaultReminderIntervalMinutes.toDouble(),
+                                value:
+                                    _defaultReminderIntervalMinutes.toDouble(),
                                 min: 5,
                                 max: 60,
                                 divisions: 11,
-                                label: '$_defaultReminderIntervalMinutes minutes',
+                                label:
+                                    '$_defaultReminderIntervalMinutes minutes',
                                 onChanged: (value) {
                                   setState(() {
-                                    _defaultReminderIntervalMinutes = value.round();
+                                    _defaultReminderIntervalMinutes =
+                                        value.round();
                                   });
                                 },
                               ),
@@ -424,7 +487,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       // Default Skip Weekends
                       SwitchListTile(
                         title: const Text('Default Skip Weekends'),
-                        subtitle: const Text('Skip Saturday and Sunday by default'),
+                        subtitle:
+                            const Text('Skip Saturday and Sunday by default'),
                         value: _defaultSkipWeekends,
                         onChanged: (value) {
                           setState(() {
@@ -462,106 +526,119 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
 
-                      // Data export section
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Export Data',
-                                style: Theme.of(context).textTheme.titleMedium,
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Export medications and adherence data to CSV',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[500],
-                                    ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 12),
-                              Consumer2<MedicationService, AdherenceService>(
-                                builder: (context, medicationService, adherenceService, child) {
-                                  return ElevatedButton.icon(
-                                    onPressed: () => _exportData(context, medicationService, adherenceService),
-                                    icon: const Icon(Icons.file_download),
-                                    label: const Text('Export to CSV'),
-                                    style: ElevatedButton.styleFrom(
-                                      minimumSize: const Size(double.infinity, 48),
-                                      backgroundColor: Colors.green[600],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
+              // Data export section
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Export Data',
+                        style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Export medications and adherence data to CSV',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[500],
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      Consumer2<MedicationService, AdherenceService>(
+                        builder: (context, medicationService, adherenceService,
+                            child) {
+                          return ElevatedButton.icon(
+                            onPressed: () => _exportData(
+                                context, medicationService, adherenceService),
+                            icon: const Icon(Icons.file_download),
+                            label: const Text('Export to CSV'),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 48),
+                              backgroundColor: Colors.green[600],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
 
-                      // Backup & Restore section
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Backup & Restore',
-                                style: Theme.of(context).textTheme.titleMedium,
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange[900]?.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  '⚠️ WARNING: Uninstalling the app will delete all your data!\n'
-                                  'Always backup before uninstalling or updating.',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Colors.orange[300],
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Consumer3<MedicationService, AdherenceService, AppSettingsService>(
-                                builder: (context, medicationService, adherenceService, settingsService, child) {
-                                  return Column(
-                                    children: [
-                                      ElevatedButton.icon(
-                                        onPressed: () => _backupData(context, medicationService, adherenceService, settingsService),
-                                        icon: const Icon(Icons.backup),
-                                        label: const Text('Backup All Data (JSON)'),
-                                        style: ElevatedButton.styleFrom(
-                                          minimumSize: const Size(double.infinity, 48),
-                                          backgroundColor: Colors.blue[600],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      OutlinedButton.icon(
-                                        onPressed: () => _restoreData(context, medicationService, adherenceService, settingsService),
-                                        icon: const Icon(Icons.restore),
-                                        label: const Text('Restore from Backup'),
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size(double.infinity, 48),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
+              // Backup & Restore section
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Backup & Restore',
+                        style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange[900]?.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '⚠️ WARNING: Uninstalling the app will delete all your data!\n'
+                          'Always backup before uninstalling or updating.',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Colors.orange[300],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                          textAlign: TextAlign.center,
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      Consumer3<MedicationService, AdherenceService,
+                          AppSettingsService>(
+                        builder: (context, medicationService, adherenceService,
+                            settingsService, child) {
+                          return Column(
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () => _backupData(
+                                    context,
+                                    medicationService,
+                                    adherenceService,
+                                    settingsService),
+                                icon: const Icon(Icons.backup),
+                                label: const Text('Backup All Data (JSON)'),
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: const Size(double.infinity, 48),
+                                  backgroundColor: Colors.blue[600],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              OutlinedButton.icon(
+                                onPressed: () => _restoreData(
+                                    context,
+                                    medicationService,
+                                    adherenceService,
+                                    settingsService),
+                                icon: const Icon(Icons.restore),
+                                label: const Text('Restore from Backup'),
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(double.infinity, 48),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
 
               // About section
@@ -592,7 +669,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: const Text('Privacy Policy'),
                         subtitle: const Text('View our privacy policy'),
                         trailing: const Icon(Icons.open_in_new, size: 18),
-                        onTap: () => _launchUrl('https://medtime.zimpics.com/privacy.html'),
+                        onTap: () => _launchUrl(
+                            'https://medtime.zimpics.com/privacy.html'),
                       ),
                     ],
                   ),
@@ -616,14 +694,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Create CSV content
       final buffer = StringBuffer();
-      
+
       // Medications header
       buffer.writeln('Medications');
-      buffer.writeln('ID,Name,Strength,Form,Dosage Amount,Category,Enabled,Times,Days of Week,Skip Weekends,Icon,Notification Behavior,Reminder Interval (min),Created At');
-      
+      buffer.writeln(
+          'ID,Name,Strength,Form,Dosage Amount,Category,Enabled,Times,Days of Week,Skip Weekends,Icon,Notification Behavior,Reminder Interval (min),Created At');
+
       for (final med in medications) {
         final timesStr = med.times.map((t) => t.format()).join(';');
-        final daysStr = med.daysOfWeek.isEmpty ? 'All' : med.daysOfWeek.join(';');
+        final daysStr =
+            med.daysOfWeek.isEmpty ? 'All' : med.daysOfWeek.join(';');
         buffer.writeln([
           med.id,
           _escapeCsv(med.name),
@@ -644,7 +724,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       buffer.writeln();
       buffer.writeln('Doses');
-      buffer.writeln('ID,Medication ID,Scheduled Time,Taken Time,Skipped,Notes');
+      buffer
+          .writeln('ID,Medication ID,Scheduled Time,Taken Time,Skipped,Notes');
 
       for (final dose in doses) {
         buffer.writeln([
@@ -692,14 +773,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _saveDefaultSettings(BuildContext context) async {
     final settingsService = context.read<AppSettingsService>();
-    
+
     settingsService.setDefaultIconName(_defaultIconName);
     settingsService.setDefaultEnabled(_defaultEnabled);
-    settingsService.setDefaultNotificationBehavior(_defaultNotificationBehavior);
-    settingsService.setDefaultReminderIntervalMinutes(_defaultReminderIntervalMinutes);
+    settingsService
+        .setDefaultNotificationBehavior(_defaultNotificationBehavior);
+    settingsService
+        .setDefaultReminderIntervalMinutes(_defaultReminderIntervalMinutes);
     settingsService.setDefaultSkipWeekends(_defaultSkipWeekends);
     settingsService.setDefaultCategory(_defaultCategory);
-    
+
     await settingsService.saveSettings();
 
     if (context.mounted) {
@@ -756,7 +839,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       };
 
       final jsonString = const JsonEncoder.withIndent('  ').convert(backup);
-      final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
+      final timestamp =
+          DateTime.now().toIso8601String().replaceAll(':', '-').split('.')[0];
       final filename = 'medtime_backup_$timestamp.json';
 
       // Create temporary file with .json extension
@@ -774,7 +858,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Backup created: $filename\nSave this file to restore your data later.'),
+            content: Text(
+                'Backup created: $filename\nSave this file to restore your data later.'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 4),
           ),
@@ -840,9 +925,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final backup = json.decode(jsonString) as Map<String, dynamic>;
 
       // Restore data
-      await medicationService.importMedications(backup['medications'] as List<dynamic>);
+      await medicationService
+          .importMedications(backup['medications'] as List<dynamic>);
       await adherenceService.importDoses(backup['doses'] as List<dynamic>);
-      await settingsService.importSettings(backup['settings'] as Map<String, dynamic>);
+      await settingsService
+          .importSettings(backup['settings'] as Map<String, dynamic>);
 
       // Reschedule notifications for all medications
       final notificationService = context.read<NotificationService>();
@@ -873,4 +960,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 }
-

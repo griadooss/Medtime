@@ -26,15 +26,20 @@ class Medication {
   final String name; // e.g., "Aspirin"
   final String? strength; // e.g., "100mg", "50mg" - strength per unit
   final MedicationForm form; // tablet, pill, capsule, etc.
-  final String? dosageAmount; // e.g., "1", "0.5", "0.25" - how many units to take
+  final String?
+      dosageAmount; // e.g., "1", "0.5", "0.25" - how many units to take
   final MedicationCategory category; // Prescription, OTC, or Other
-  final List<MedicationTime> times; // List of daily times (e.g., 8:00, 14:00, 20:00)
-  final List<int> daysOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday. Empty = all days
+  final List<MedicationTime>
+      times; // List of daily times (e.g., 8:00, 14:00, 20:00)
+  final List<int>
+      daysOfWeek; // 0=Sunday, 1=Monday, ..., 6=Saturday. Empty = all days
   final bool skipWeekends; // If true, skip Saturday and Sunday
-  final String iconName; // Material icon name (e.g., "medication", "medication_liquid")
+  final String
+      iconName; // Material icon name (e.g., "medication", "medication_liquid")
   final bool enabled; // Whether notifications are enabled
   final NotificationBehavior notificationBehavior; // Dismiss or remind
-  final int? reminderIntervalMinutes; // Minutes between reminders (if behavior is remind)
+  final int?
+      reminderIntervalMinutes; // Minutes between reminders (if behavior is remind)
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -75,7 +80,7 @@ class Medication {
         }
         return MedicationForm.tablet;
       }(),
-      dosageAmount: json['dosageAmount'] as String? ?? 
+      dosageAmount: json['dosageAmount'] as String? ??
           // Handle legacy 'dosage' field for backward compatibility
           (json['dosage'] as String?),
       category: () {
@@ -159,7 +164,8 @@ class Medication {
       iconName: iconName ?? this.iconName,
       enabled: enabled ?? this.enabled,
       notificationBehavior: notificationBehavior ?? this.notificationBehavior,
-      reminderIntervalMinutes: reminderIntervalMinutes ?? this.reminderIntervalMinutes,
+      reminderIntervalMinutes:
+          reminderIntervalMinutes ?? this.reminderIntervalMinutes,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
@@ -212,7 +218,7 @@ class Medication {
   String _formatDosageAmount(String amount) {
     final num = double.tryParse(amount);
     if (num == null) return amount;
-    
+
     if (num == 1.0) return 'one';
     if (num == 0.5) return 'half';
     if (num == 0.25) return 'quarter';
@@ -221,7 +227,7 @@ class Medication {
     if (num == 2.0) return 'two';
     if (num == 2.5) return 'two and a half';
     if (num == 3.0) return 'three';
-    
+
     // For other values, show as decimal
     return num.toString();
   }
@@ -303,4 +309,3 @@ class MedicationTime {
     return minute.compareTo(other.minute);
   }
 }
-

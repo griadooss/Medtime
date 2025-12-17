@@ -44,7 +44,8 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
       _nameController = TextEditingController(text: med.name);
       _strengthController = TextEditingController(text: med.strength ?? '');
       _form = med.form;
-      _dosageAmountController = TextEditingController(text: med.dosageAmount ?? '');
+      _dosageAmountController =
+          TextEditingController(text: med.dosageAmount ?? '');
       _category = med.category;
       _times = List.from(med.times);
       _daysOfWeek = List.from(med.daysOfWeek);
@@ -75,14 +76,16 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
     super.didChangeDependencies();
     // Load defaults from settings if creating new medication
     if (widget.medication == null) {
-      final settingsService = Provider.of<AppSettingsService>(context, listen: false);
+      final settingsService =
+          Provider.of<AppSettingsService>(context, listen: false);
       setState(() {
         _category = settingsService.defaultCategory;
         _skipWeekends = settingsService.defaultSkipWeekends;
         _iconName = settingsService.defaultIconName;
         _enabled = settingsService.defaultEnabled;
         _notificationBehavior = settingsService.defaultNotificationBehavior;
-        _reminderIntervalMinutes = settingsService.defaultReminderIntervalMinutes;
+        _reminderIntervalMinutes =
+            settingsService.defaultReminderIntervalMinutes;
       });
     }
   }
@@ -153,30 +156,30 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
               const SizedBox(height: 8),
               Center(
                 child: SegmentedButton<MedicationForm>(
-                segments: const [
-                  ButtonSegment<MedicationForm>(
-                    value: MedicationForm.tablet,
-                    label: Text('Tablet'),
-                    icon: Icon(Icons.medication),
-                  ),
-                  ButtonSegment<MedicationForm>(
-                    value: MedicationForm.pill,
-                    label: Text('Pill'),
-                    icon: Icon(Icons.circle),
-                  ),
-                  ButtonSegment<MedicationForm>(
-                    value: MedicationForm.capsule,
-                    label: Text('Capsule'),
-                    icon: Icon(Icons.medication_liquid),
-                  ),
-                ],
-                selected: {_form},
-                onSelectionChanged: (Set<MedicationForm> newSelection) {
-                  setState(() {
-                    _form = newSelection.first;
-                  });
-                },
-              ),
+                  segments: const [
+                    ButtonSegment<MedicationForm>(
+                      value: MedicationForm.tablet,
+                      label: Text('Tablet'),
+                      icon: Icon(Icons.medication),
+                    ),
+                    ButtonSegment<MedicationForm>(
+                      value: MedicationForm.pill,
+                      label: Text('Pill'),
+                      icon: Icon(Icons.circle),
+                    ),
+                    ButtonSegment<MedicationForm>(
+                      value: MedicationForm.capsule,
+                      label: Text('Capsule'),
+                      icon: Icon(Icons.medication_liquid),
+                    ),
+                  ],
+                  selected: {_form},
+                  onSelectionChanged: (Set<MedicationForm> newSelection) {
+                    setState(() {
+                      _form = newSelection.first;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 8),
               Center(
@@ -184,24 +187,24 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                   spacing: 8,
                   alignment: WrapAlignment.center,
                   children: [
-                  MedicationForm.liquid,
-                  MedicationForm.drops,
-                  MedicationForm.spray,
-                  MedicationForm.patch,
-                  MedicationForm.injection,
-                  MedicationForm.other,
-                ].map((form) {
-                  final isSelected = _form == form;
-                  return FilterChip(
-                    label: Text(_getFormLabel(form)),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _form = form;
-                      });
-                    },
-                  );
-                }).toList(),
+                    MedicationForm.liquid,
+                    MedicationForm.drops,
+                    MedicationForm.spray,
+                    MedicationForm.patch,
+                    MedicationForm.injection,
+                    MedicationForm.other,
+                  ].map((form) {
+                    final isSelected = _form == form;
+                    return FilterChip(
+                      label: Text(_getFormLabel(form)),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          _form = form;
+                        });
+                      },
+                    );
+                  }).toList(),
                 ),
               ),
               const SizedBox(height: 16),
@@ -214,10 +217,12 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                   labelText: 'Dosage Amount (optional)',
                   hintText: 'e.g., 1, 0.5, 0.25',
                   border: OutlineInputBorder(),
-                  helperText: 'Enter a number: 1 = one, 0.5 = half, 0.25 = quarter (will display as words)',
+                  helperText:
+                      'Enter a number: 1 = one, 0.5 = half, 0.25 = quarter (will display as words)',
                   alignLabelWithHint: true,
                 ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
               ),
               const SizedBox(height: 24),
 
@@ -230,30 +235,30 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
               const SizedBox(height: 8),
               Center(
                 child: SegmentedButton<MedicationCategory>(
-                segments: const [
-                  ButtonSegment<MedicationCategory>(
-                    value: MedicationCategory.prescription,
-                    label: Text('Script'),
-                    icon: Icon(Icons.medication),
-                  ),
-                  ButtonSegment<MedicationCategory>(
-                    value: MedicationCategory.otc,
-                    label: Text('OTC'),
-                    icon: Icon(Icons.local_pharmacy),
-                  ),
-                  ButtonSegment<MedicationCategory>(
-                    value: MedicationCategory.other,
-                    label: Text('Other'),
-                    icon: Icon(Icons.category),
-                  ),
-                ],
-                selected: {_category},
-                onSelectionChanged: (Set<MedicationCategory> newSelection) {
-                  setState(() {
-                    _category = newSelection.first;
-                  });
-                },
-              ),
+                  segments: const [
+                    ButtonSegment<MedicationCategory>(
+                      value: MedicationCategory.prescription,
+                      label: Text('Script'),
+                      icon: Icon(Icons.medication),
+                    ),
+                    ButtonSegment<MedicationCategory>(
+                      value: MedicationCategory.otc,
+                      label: Text('OTC'),
+                      icon: Icon(Icons.local_pharmacy),
+                    ),
+                    ButtonSegment<MedicationCategory>(
+                      value: MedicationCategory.other,
+                      label: Text('Other'),
+                      icon: Icon(Icons.category),
+                    ),
+                  ],
+                  selected: {_category},
+                  onSelectionChanged: (Set<MedicationCategory> newSelection) {
+                    setState(() {
+                      _category = newSelection.first;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -269,18 +274,18 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                   spacing: 12,
                   alignment: WrapAlignment.center,
                   children: _availableIcons.map((iconName) {
-                  final isSelected = _iconName == iconName;
-                  return ChoiceChip(
-                    label: Icon(_getIconData(iconName)),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        _iconName = iconName;
-                      });
-                    },
-                    selectedColor: Colors.green[200],
-                  );
-                }).toList(),
+                    final isSelected = _iconName == iconName;
+                    return ChoiceChip(
+                      label: Icon(_getIconData(iconName)),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() {
+                          _iconName = iconName;
+                        });
+                      },
+                      selectedColor: Colors.green[200],
+                    );
+                  }).toList(),
                 ),
               ),
               const SizedBox(height: 24),
@@ -362,25 +367,26 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                     ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _daysOfWeek.isEmpty 
+                        color: _daysOfWeek.isEmpty
                             ? Colors.green[900]?.withOpacity(0.3)
                             : Colors.grey[800]?.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: _daysOfWeek.isEmpty 
+                          color: _daysOfWeek.isEmpty
                               ? Colors.green[300]!
                               : Colors.grey[600]!,
                           width: 1,
                         ),
                       ),
                       child: Text(
-                        _daysOfWeek.isEmpty 
+                        _daysOfWeek.isEmpty
                             ? '✓ All days selected (every day)'
                             : '${_daysOfWeek.length} day(s) selected',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: _daysOfWeek.isEmpty 
+                              color: _daysOfWeek.isEmpty
                                   ? Colors.green[300]
                                   : Colors.grey[400],
                               fontWeight: FontWeight.w500,
@@ -394,7 +400,13 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                         spacing: 8,
                         alignment: WrapAlignment.center,
                         children: [
-                          'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'
+                          'Sun',
+                          'Mon',
+                          'Tue',
+                          'Wed',
+                          'Thu',
+                          'Fri',
+                          'Sat'
                         ].asMap().entries.map((entry) {
                           final index = entry.key;
                           final dayName = entry.value;
@@ -426,7 +438,8 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                   children: [
                     ListTile(
                       title: const Text('Notification Behavior'),
-                      subtitle: const Text('What happens when notification appears'),
+                      subtitle:
+                          const Text('What happens when notification appears'),
                     ),
                     RadioListTile<NotificationBehavior>(
                       title: const Text('Dismiss'),
@@ -454,22 +467,25 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                         }
                       },
                     ),
-                    if (_notificationBehavior == NotificationBehavior.remind) ...[
+                    if (_notificationBehavior ==
+                        NotificationBehavior.remind) ...[
                       Padding(
                         padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
                             Text(
                               'Reminder Interval: ${_reminderIntervalMinutes ?? 15} minutes',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             Slider(
-                              value: (_reminderIntervalMinutes ?? 15).toDouble(),
+                              value:
+                                  (_reminderIntervalMinutes ?? 15).toDouble(),
                               min: 5,
                               max: 60,
                               divisions: 11,
-                              label: '${_reminderIntervalMinutes ?? 15} minutes',
+                              label:
+                                  '${_reminderIntervalMinutes ?? 15} minutes',
                               onChanged: (value) {
                                 setState(() {
                                   _reminderIntervalMinutes = value.round();
@@ -489,7 +505,8 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
               Card(
                 child: SwitchListTile(
                   title: const Text('Enabled'),
-                  subtitle: const Text('Enable notifications for this medication'),
+                  subtitle:
+                      const Text('Enable notifications for this medication'),
                   value: _enabled,
                   onChanged: (value) {
                     setState(() {
@@ -516,7 +533,8 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : Text(widget.medication != null
@@ -617,7 +635,7 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
 
     try {
       final isEditing = widget.medication != null;
-      
+
       if (isEditing) {
         await medicationService.updateMedication(medication);
       } else {
@@ -657,7 +675,7 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
       setState(() {
         _isSaving = false;
       });
-      
+
       if (!context.mounted) return;
       messenger.showSnackBar(
         SnackBar(
@@ -674,7 +692,8 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Medication'),
-        content: Text('Are you sure you want to delete ${widget.medication?.name}?'),
+        content:
+            Text('Are you sure you want to delete ${widget.medication?.name}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -694,7 +713,8 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
       final notificationService = context.read<NotificationService>();
 
       // Cancel notifications
-      await notificationService.cancelMedicationNotifications(widget.medication!.id);
+      await notificationService
+          .cancelMedicationNotifications(widget.medication!.id);
 
       // Delete medication
       await medicationService.deleteMedication(widget.medication!.id);

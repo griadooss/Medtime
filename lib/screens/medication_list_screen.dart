@@ -65,16 +65,19 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
 
           // Filter and sort medications
           var medications = medicationService.medications;
-          
+
           // Filter by category if selected
           if (_filterCategory != null) {
-            medications = medications.where((m) => m.category == _filterCategory).toList();
+            medications = medications
+                .where((m) => m.category == _filterCategory)
+                .toList();
           }
-          
+
           // Sort by category, then by name
           medications = List.from(medications)
             ..sort((a, b) {
-              final categoryCompare = a.category.index.compareTo(b.category.index);
+              final categoryCompare =
+                  a.category.index.compareTo(b.category.index);
               if (categoryCompare != 0) return categoryCompare;
               return a.name.toLowerCase().compareTo(b.name.toLowerCase());
             });
@@ -83,7 +86,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
             children: [
               // Category filter chips
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -100,7 +104,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                       const SizedBox(width: 8),
                       FilterChip(
                         label: const Text('Script'),
-                        selected: _filterCategory == MedicationCategory.prescription,
+                        selected:
+                            _filterCategory == MedicationCategory.prescription,
                         onSelected: (selected) {
                           setState(() {
                             _filterCategory = selected
@@ -115,9 +120,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                         selected: _filterCategory == MedicationCategory.otc,
                         onSelected: (selected) {
                           setState(() {
-                            _filterCategory = selected
-                                ? MedicationCategory.otc
-                                : null;
+                            _filterCategory =
+                                selected ? MedicationCategory.otc : null;
                           });
                         },
                       ),
@@ -127,9 +131,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                         selected: _filterCategory == MedicationCategory.other,
                         onSelected: (selected) {
                           setState(() {
-                            _filterCategory = selected
-                                ? MedicationCategory.other
-                                : null;
+                            _filterCategory =
+                                selected ? MedicationCategory.other : null;
                           });
                         },
                       ),
@@ -138,7 +141,7 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 ),
               ),
               const Divider(height: 1),
-              
+
               // Medications list
               if (medications.isEmpty)
                 Expanded(
@@ -156,18 +159,20 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                           _filterCategory == null
                               ? 'No medications yet'
                               : 'No medications in this category',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: Colors.grey[400],
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    color: Colors.grey[400],
+                                  ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           _filterCategory == null
                               ? 'Tap + to add your first medication'
                               : 'Tap + to add a medication',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.grey[500],
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey[500],
+                                  ),
                         ),
                       ],
                     ),
@@ -214,7 +219,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MedicationEditScreen(medication: medication),
+              builder: (context) =>
+                  MedicationEditScreen(medication: medication),
             ),
           );
         },
@@ -233,73 +239,86 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                         : Colors.grey[600],
                   ),
                   const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                medication.name,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: medication.enabled
-                                          ? null
-                                          : Colors.grey[500],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          medication.name,
+                          textAlign: TextAlign.center,
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: medication.enabled
+                                        ? null
+                                        : Colors.grey[500],
+                                  ),
+                        ),
+                        if (medication.strength != null &&
+                            medication.strength!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            '(${medication.strength})',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Colors.grey[400],
+                                ),
+                          ),
+                        ],
+                        if (medication.dosageInstruction.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            medication.dosageInstruction,
+                            textAlign: TextAlign.center,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Colors.green[300],
                                     ),
+                          ),
+                        ],
+                        const SizedBox(height: 8),
+                        // Category badge
+                        Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getCategoryColor(medication.category)
+                                  .withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _getCategoryColor(medication.category),
+                                width: 1,
                               ),
-                              if (medication.strength != null && medication.strength!.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  '(${medication.strength})',
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: Colors.grey[400],
-                                      ),
-                                ),
-                              ],
-                              if (medication.dosageInstruction.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  medication.dosageInstruction,
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Colors.green[300],
-                                      ),
-                                ),
-                              ],
-                              const SizedBox(height: 8),
-                              // Category badge
-                              Center(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
+                            ),
+                            child: Text(
+                              _getCategoryLabel(medication.category),
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        _getCategoryColor(medication.category),
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: _getCategoryColor(medication.category).withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: _getCategoryColor(medication.category),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    _getCategoryLabel(medication.category),
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: _getCategoryColor(medication.category),
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
                   Switch(
                     value: medication.enabled,
                     onChanged: (value) {
-                      context.read<MedicationService>().toggleMedication(medication.id);
+                      context
+                          .read<MedicationService>()
+                          .toggleMedication(medication.id);
                     },
                     activeColor: Colors.green[400],
                     activeTrackColor: Colors.green[300],
@@ -330,7 +349,8 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.check_circle, size: 16, color: Colors.green[300]),
+                    Icon(Icons.check_circle,
+                        size: 16, color: Colors.green[300]),
                     const SizedBox(width: 4),
                     Text(
                       '${stats.taken}/${stats.total} taken (${stats.adherenceRate.toStringAsFixed(0)}%)',
@@ -398,4 +418,3 @@ class _MedicationListScreenState extends State<MedicationListScreen> {
     }
   }
 }
-

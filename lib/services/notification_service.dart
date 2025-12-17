@@ -22,55 +22,66 @@ class NotificationService extends ChangeNotifier {
     try {
       // Initialize timezone
       tz.initializeTimeZones();
-      
+
       // Note: tz.local defaults to UTC, but we'll handle timezone conversion
       // in the scheduling methods by using DateTime.now() which is in local time
       // and converting properly using TZDateTime.now(tz.local).add() approach
       debugPrint('Timezone initialized. Default timezone: ${tz.local.name}');
       final now = DateTime.now();
       debugPrint('Device timezone offset: ${now.timeZoneOffset.inHours} hours');
-      
+
       // Request permissions first (before creating channels)
-      final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
-      
+      final androidPlugin =
+          _notifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+
       if (androidPlugin != null) {
-        _permissionGranted = await androidPlugin.requestNotificationsPermission() ?? false;
-        
+        _permissionGranted =
+            await androidPlugin.requestNotificationsPermission() ?? false;
+
         // Create notification channel with proper settings
         // Use Importance.max to ensure sound plays even in Do Not Disturb mode
         const androidChannel = AndroidNotificationChannel(
           'medtime_reminders',
           'Medication Reminders',
           description: 'Reminders for taking medications',
-          importance: Importance.max, // Changed from high to max for sound/vibration
+          importance:
+              Importance.max, // Changed from high to max for sound/vibration
           playSound: true,
           enableVibration: true,
           showBadge: true,
         );
-        
+
         await androidPlugin.createNotificationChannel(androidChannel);
-        debugPrint('Notification channel created: medtime_reminders with Importance.max');
-        debugPrint('NOTE: If sound doesn\'t play, check Settings → Apps → Medtime → Notifications → Medication Reminders');
-        
+        debugPrint(
+            'Notification channel created: medtime_reminders with Importance.max');
+        debugPrint(
+            'NOTE: If sound doesn\'t play, check Settings → Apps → Medtime → Notifications → Medication Reminders');
+
         // Check and request exact alarm permission on Android 12+ (API 31+)
         try {
-          final canScheduleExactAlarms = await androidPlugin.canScheduleExactNotifications();
+          final canScheduleExactAlarms =
+              await androidPlugin.canScheduleExactNotifications();
           debugPrint('Can schedule exact alarms: $canScheduleExactAlarms');
           if (canScheduleExactAlarms != null && !canScheduleExactAlarms) {
-            debugPrint('WARNING: Exact alarm permission not granted. Notifications may be delayed!');
+            debugPrint(
+                'WARNING: Exact alarm permission not granted. Notifications may be delayed!');
             debugPrint('Attempting to request exact alarm permission...');
             try {
-              final requested = await androidPlugin.requestExactAlarmsPermission();
+              final requested =
+                  await androidPlugin.requestExactAlarmsPermission();
               debugPrint('Exact alarm permission request result: $requested');
               if (requested == true) {
                 debugPrint('Exact alarm permission granted!');
               } else {
-                debugPrint('User needs to grant "Alarms & reminders" permission in system settings.');
+                debugPrint(
+                    'User needs to grant "Alarms & reminders" permission in system settings.');
               }
             } catch (requestError) {
-              debugPrint('Could not request exact alarm permission: $requestError');
-              debugPrint('User needs to grant "Alarms & reminders" permission in system settings.');
+              debugPrint(
+                  'Could not request exact alarm permission: $requestError');
+              debugPrint(
+                  'User needs to grant "Alarms & reminders" permission in system settings.');
             }
           } else {
             debugPrint('Exact alarm permission is already granted.');
@@ -79,10 +90,11 @@ class NotificationService extends ChangeNotifier {
           debugPrint('Could not check exact alarm permission: $e');
         }
       }
-      
+
       // Android initialization settings
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-      
+      const androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+
       // iOS initialization settings
       const iosSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
@@ -102,13 +114,14 @@ class NotificationService extends ChangeNotifier {
 
       final iosPlugin = _notifications.resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin>();
-      
+
       if (iosPlugin != null) {
         _permissionGranted = await iosPlugin.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        ) ?? false;
+              alert: true,
+              badge: true,
+              sound: true,
+            ) ??
+            false;
       }
 
       _initialized = true;
@@ -142,9 +155,11 @@ class NotificationService extends ChangeNotifier {
 
     debugPrint('=== Scheduling notifications for ${medication.name} ===');
     debugPrint('Enabled: ${medication.enabled}');
-    debugPrint('Days of week: ${medication.daysOfWeek.isEmpty ? "ALL DAYS" : medication.daysOfWeek}');
+    debugPrint(
+        'Days of week: ${medication.daysOfWeek.isEmpty ? "ALL DAYS" : medication.daysOfWeek}');
     debugPrint('Skip weekends: ${medication.skipWeekends}');
-    debugPrint('Times: ${medication.times.map((t) => "${t.hour}:${t.minute.toString().padLeft(2, '0')}").join(", ")}');
+    debugPrint(
+        'Times: ${medication.times.map((t) => "${t.hour}:${t.minute.toString().padLeft(2, '0')}").join(", ")}');
 
     // Cancel existing notifications for this medication
     await cancelMedicationNotifications(medication.id);
@@ -164,11 +179,13 @@ class NotificationService extends ChangeNotifier {
       final targetDate = today.add(Duration(days: dayOffset));
       // DateTime.weekday: 1=Monday, 2=Tuesday, ..., 7=Sunday
       // We need: 0=Sunday, 1=Monday, ..., 6=Saturday
-      final dayOfWeek = (targetDate.weekday % 7); // This gives: Mon=1, Tue=2, ..., Sat=6, Sun=0
+      final dayOfWeek = (targetDate.weekday %
+          7); // This gives: Mon=1, Tue=2, ..., Sat=6, Sun=0
 
       // Check if medication should be taken on this day
       if (!medication.shouldTakeOnDay(dayOfWeek)) {
-        debugPrint('Skipping ${targetDate.toString().split(' ')[0]} (dayOfWeek=$dayOfWeek, shouldTake=${medication.shouldTakeOnDay(dayOfWeek)})');
+        debugPrint(
+            'Skipping ${targetDate.toString().split(' ')[0]} (dayOfWeek=$dayOfWeek, shouldTake=${medication.shouldTakeOnDay(dayOfWeek)})');
         continue;
       }
 
@@ -185,14 +202,16 @@ class NotificationService extends ChangeNotifier {
         // Skip if time has already passed today (with 1 minute buffer to account for timing)
         final oneMinuteAgo = now.subtract(const Duration(minutes: 1));
         if (dayOffset == 0 && scheduledDateTime.isBefore(oneMinuteAgo)) {
-          debugPrint('Skipping past time: ${scheduledDateTime.toString()} (current: ${now.toString()})');
+          debugPrint(
+              'Skipping past time: ${scheduledDateTime.toString()} (current: ${now.toString()})');
           continue;
         }
-        
+
         // Log when scheduling near-term notifications
         final timeUntil = scheduledDateTime.difference(now);
         if (dayOffset == 0 && timeUntil.inMinutes < 10) {
-          debugPrint('Scheduling near-term notification: ${scheduledDateTime.toString()} (in ${timeUntil.inMinutes} minutes)');
+          debugPrint(
+              'Scheduling near-term notification: ${scheduledDateTime.toString()} (in ${timeUntil.inMinutes} minutes)');
         }
 
         await _scheduleNotification(
@@ -204,7 +223,8 @@ class NotificationService extends ChangeNotifier {
       }
     }
 
-    debugPrint('=== Scheduled $scheduledCount notifications for ${medication.name} ===');
+    debugPrint(
+        '=== Scheduled $scheduledCount notifications for ${medication.name} ===');
   }
 
   /// Schedule a single notification
@@ -218,21 +238,22 @@ class NotificationService extends ChangeNotifier {
     // Get the device's timezone offset
     final now = DateTime.now();
     final offset = now.timeZoneOffset;
-    
+
     // Create TZDateTime by adding the offset to convert from local to UTC, then create TZDateTime
     // Actually, simpler: use the scheduled time directly and let timezone package handle it
     // But we need to ensure we're using the correct timezone location
-    
+
     // Get current TZDateTime in local timezone
     final tzNow = tz.TZDateTime.now(tz.local);
-    
+
     // Calculate difference in local time
     final difference = scheduledDateTime.difference(now);
-    
+
     // Add the difference to current TZDateTime (this preserves timezone)
     final tzScheduledDate = tzNow.add(difference);
-    
-    debugPrint('Scheduling: DateTime=${scheduledDateTime.toString()}, TZDateTime=${tzScheduledDate.toString()}, Timezone=${tz.local.name}');
+
+    debugPrint(
+        'Scheduling: DateTime=${scheduledDateTime.toString()}, TZDateTime=${tzScheduledDate.toString()}, Timezone=${tz.local.name}');
     debugPrint('Current time: ${now.toString()}, TZNow: ${tzNow.toString()}');
     debugPrint('Time difference: ${difference.inMinutes} minutes from now');
     debugPrint('Device timezone offset: ${offset.inHours} hours');
@@ -268,7 +289,8 @@ class NotificationService extends ChangeNotifier {
 
     // Try exact alarm first, fall back to inexact if permission not granted
     try {
-      debugPrint('Scheduling notification: ${medication.name} at ${scheduledDateTime.toString()} (ID: $notificationId)');
+      debugPrint(
+          'Scheduling notification: ${medication.name} at ${scheduledDateTime.toString()} (ID: $notificationId)');
       await _notifications.zonedSchedule(
         notificationId,
         medication.name,
@@ -297,7 +319,8 @@ class NotificationService extends ChangeNotifier {
               UILocalNotificationDateInterpretation.absoluteTime,
           payload: medication.id,
         );
-        debugPrint('Notification scheduled with inexact alarm (may be delayed)');
+        debugPrint(
+            'Notification scheduled with inexact alarm (may be delayed)');
       } catch (e2) {
         debugPrint('ERROR: Failed to schedule notification: $e2');
       }
@@ -368,10 +391,10 @@ class NotificationService extends ChangeNotifier {
     // Use TZDateTime.now() which should use the correct timezone
     final tzNow = tz.TZDateTime.now(tz.local);
     final tzScheduledTime = tzNow.add(Duration(seconds: secondsFromNow));
-    
+
     final now = DateTime.now();
     final scheduledTime = now.add(Duration(seconds: secondsFromNow));
-    
+
     debugPrint('=== Scheduling Test Notification ===');
     debugPrint('Current time (DateTime): ${now.toString()}');
     debugPrint('Current time (TZDateTime): ${tzNow.toString()}');
@@ -404,7 +427,7 @@ class NotificationService extends ChangeNotifier {
     );
 
     const testNotificationId = 999998;
-    
+
     try {
       await _notifications.zonedSchedule(
         testNotificationId,
@@ -418,16 +441,17 @@ class NotificationService extends ChangeNotifier {
         payload: 'test_scheduled',
       );
       debugPrint('Test notification scheduled successfully (exact alarm)');
-      
+
       // Verify it's in the pending list
       final pending = await _notifications.pendingNotificationRequests();
       final testNotification = pending.firstWhere(
         (n) => n.id == testNotificationId,
-        orElse: () => throw Exception('Test notification not found in pending list'),
+        orElse: () =>
+            throw Exception('Test notification not found in pending list'),
       );
-      debugPrint('Verified: Test notification is in pending list (ID: ${testNotification.id})');
+      debugPrint(
+          'Verified: Test notification is in pending list (ID: ${testNotification.id})');
       debugPrint('Notification will fire at: ${testNotification.body}');
-      
     } catch (e) {
       debugPrint('Error scheduling test notification (exact): $e');
       // Try with inexact alarm
@@ -444,14 +468,16 @@ class NotificationService extends ChangeNotifier {
           payload: 'test_scheduled',
         );
         debugPrint('Test notification scheduled with inexact alarm');
-        
+
         // Verify it's in the pending list
         final pending = await _notifications.pendingNotificationRequests();
         final testNotification = pending.firstWhere(
           (n) => n.id == testNotificationId,
-          orElse: () => throw Exception('Test notification not found in pending list'),
+          orElse: () =>
+              throw Exception('Test notification not found in pending list'),
         );
-        debugPrint('Verified: Test notification is in pending list (ID: ${testNotification.id})');
+        debugPrint(
+            'Verified: Test notification is in pending list (ID: ${testNotification.id})');
       } catch (e2) {
         debugPrint('Error scheduling test notification (inexact): $e2');
       }
@@ -461,8 +487,9 @@ class NotificationService extends ChangeNotifier {
   /// Cancel all notifications for a medication
   Future<void> cancelMedicationNotifications(String medicationId) async {
     // Get all pending notifications and cancel those matching the medication
-    final pendingNotifications = await _notifications.pendingNotificationRequests();
-    
+    final pendingNotifications =
+        await _notifications.pendingNotificationRequests();
+
     for (final notification in pendingNotifications) {
       if (notification.payload == medicationId) {
         await _notifications.cancel(notification.id);
@@ -479,7 +506,6 @@ class NotificationService extends ChangeNotifier {
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _notifications.pendingNotificationRequests();
   }
-
 
   /// Schedule a reminder notification (for repeat behavior)
   Future<void> scheduleReminder(
@@ -532,7 +558,8 @@ class NotificationService extends ChangeNotifier {
     }
 
     // Use a unique ID for reminder notifications
-    final reminderId = _getNotificationId(medication.id, reminderTime) + 1000000;
+    final reminderId =
+        _getNotificationId(medication.id, reminderTime) + 1000000;
 
     // Try exact alarm first, fall back to inexact if permission not granted
     try {
@@ -564,4 +591,3 @@ class NotificationService extends ChangeNotifier {
     }
   }
 }
-

@@ -10,7 +10,7 @@ import 'models/medication_dose.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   runApp(const MedtimeApp());
 }
 
@@ -87,7 +87,7 @@ class _MedtimeAppState extends State<MedtimeApp> {
     // Find existing dose or create a new one
     final doses = adherenceService.getDosesForMedication(medicationId);
     MedicationDose? existingDose;
-    
+
     // Try to find a dose scheduled for today around this time
     for (final dose in doses) {
       if (dose.scheduledTime.year == now.year &&

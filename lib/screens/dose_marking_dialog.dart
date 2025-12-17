@@ -112,9 +112,9 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
           TextButton(
             onPressed: () async {
               // Mark as skipped
-              final doseId = widget.existingDose?.id ?? 
+              final doseId = widget.existingDose?.id ??
                   '${widget.medication.id}_${widget.scheduledTime.millisecondsSinceEpoch}';
-              
+
               // Create dose if it doesn't exist
               if (widget.existingDose == null) {
                 final dose = MedicationDose(
@@ -128,7 +128,7 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
               } else {
                 await adherenceService.markDoseSkipped(doseId, notes: _notes);
               }
-              
+
               if (context.mounted) {
                 Navigator.of(context).pop();
               }
@@ -141,9 +141,9 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
           ElevatedButton(
             onPressed: () async {
               // Mark as taken
-              final doseId = widget.existingDose?.id ?? 
+              final doseId = widget.existingDose?.id ??
                   '${widget.medication.id}_${widget.scheduledTime.millisecondsSinceEpoch}';
-              
+
               // Create dose if it doesn't exist
               if (widget.existingDose == null) {
                 final dose = MedicationDose(
@@ -157,7 +157,7 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
               } else {
                 await adherenceService.markDoseTaken(doseId, notes: _notes);
               }
-              
+
               if (context.mounted) {
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -193,4 +193,3 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
     return '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
   }
 }
-
