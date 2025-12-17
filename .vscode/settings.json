@@ -12,26 +12,26 @@
     "editor.tabCompletion": "onlySnippets",
     "editor.wordBasedSuggestions": "off"
   },
-  
+
   // Use Dart formatter for Dart files
   "dart.lineLength": 80,
   "dart.enableSdkFormatter": true,
-  
+
   // File associations
   "files.associations": {
     "*.dart": "dart"
   },
-  
+
   // Editor settings
   "editor.trimAutoWhitespace": true,
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "files.eol": "\n",
-  
+
   // Prevent auto-formatting on file open (only format on save)
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
-  
+
   // Exclude build and generated files from formatting
   "files.exclude": {
     "**/.dart_tool": true,
