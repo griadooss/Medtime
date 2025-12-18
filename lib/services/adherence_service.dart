@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/medication_dose.dart';
+import '../models/medication.dart';
 
 /// Service for tracking medication adherence
 class AdherenceService extends ChangeNotifier {
@@ -183,6 +184,132 @@ class AdherenceService extends ChangeNotifier {
   /// Export doses as JSON (for backup)
   List<Map<String, dynamic>> exportDoses() {
     return _doses.map((d) => d.toJson()).toList();
+  }
+
+  /// Get the most recent missed dose (previous scheduled time only)
+  /// Returns the dose that was scheduled most recently but not taken
+  MedicationDose? getMostRecentMissedDose(String medicationId) {
+    final now = DateTime.now();
+    final doses = getDosesForMedication(medicationId)
+        .where((d) => d.isMissed(now))
+        .toList();
+
+    if (doses.isEmpty) return null;
+
+    // Return the most recent missed dose (closest to now)
+    doses.sort((a, b) => b.scheduledTime.compareTo(a.scheduledTime));
+    return doses.first;
+  }
+
+  /// Get all missed doses (for adherence tracking - historical)
+  List<MedicationDose> getMissedDoses({DateTime? now}) {
+    final checkTime = now ?? DateTime.now();
+    return _doses.where((d) => d.isMissed(checkTime)).toList();
+  }
+
+  /// Get pending doses (due within next 15 minutes)
+  List<MedicationDose> getPendingDoses({DateTime? now}) {
+    final checkTime = now ?? DateTime.now();
+    final cutoffTime = checkTime.add(const Duration(minutes: 15));
+
+    return _doses.where((d) {
+      return !d.isTaken &&
+          !d.skipped &&
+          d.scheduledTime.isAfter(checkTime) &&
+          d.scheduledTime.isBefore(cutoffTime);
+    }).toList();
+  }
+
+  /// Get doses that need attention (missed or pending) for reminder screen
+  /// Returns map with 'missed' and 'pending' lists, grouped by medication
+  Map<String, List<MedicationDose>> getDosesNeedingAttention({
+    required List<String> medicationIds,
+  }) {
+    final now = DateTime.now();
+    final result = <String, List<MedicationDose>>{};
+
+    for (final medicationId in medicationIds) {
+      final doses = <MedicationDose>[];
+
+      // Get most recent missed dose (only previous scheduled time)
+      final missedDose = getMostRecentMissedDose(medicationId);
+      if (missedDose != null) {
+        doses.add(missedDose);
+      }
+
+      // Get pending doses (due within 15 minutes)
+      final pendingDoses = getDosesForMedication(medicationId)
+          .where((d) {
+            return !d.isTaken &&
+                !d.skipped &&
+                d.scheduledTime.isAfter(now) &&
+                d.scheduledTime.isBefore(now.add(const Duration(minutes: 15)));
+          })
+          .toList();
+
+      doses.addAll(pendingDoses);
+
+      if (doses.isNotEmpty) {
+        result[medicationId] = doses;
+      }
+    }
+
+    return result;
+  }
+
+  /// Create dose records for a medication's schedule (proactive tracking)
+  /// This creates dose records for the next 30 days when scheduling notifications
+  Future<void> createScheduledDosesForMedication(Medication medication) async {
+    if (!medication.enabled) return;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Create doses for next 30 days
+    for (int dayOffset = 0; dayOffset < 30; dayOffset++) {
+      final targetDate = today.add(Duration(days: dayOffset));
+      final dayOfWeek = (targetDate.weekday % 7);
+
+      // Check if medication should be taken on this day
+      if (!medication.shouldTakeOnDay(dayOfWeek)) {
+        continue;
+      }
+
+      // Create dose for each scheduled time
+      for (final time in medication.times) {
+        final scheduledDateTime = DateTime(
+          targetDate.year,
+          targetDate.month,
+          targetDate.day,
+          time.hour,
+          time.minute,
+        );
+
+        // For today, create dose records even if time has passed (up to 24 hours ago)
+        // This allows us to detect missed doses when the app is opened later
+        if (dayOffset == 0) {
+          final oneDayAgo = now.subtract(const Duration(hours: 24));
+          if (scheduledDateTime.isBefore(oneDayAgo)) {
+            // Skip if more than 24 hours old
+            continue;
+          }
+          // Otherwise, create the dose record even if it's in the past
+          // This allows detection of missed doses
+        }
+
+        // Create dose record
+        final doseId =
+            '${medication.id}_${scheduledDateTime.millisecondsSinceEpoch}';
+        final dose = MedicationDose(
+          id: doseId,
+          medicationId: medication.id,
+          scheduledTime: scheduledDateTime,
+        );
+
+        // Add dose (will skip if already exists)
+        await addScheduledDose(dose);
+      }
+    }
   }
 }
 

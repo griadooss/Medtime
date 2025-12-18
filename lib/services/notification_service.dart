@@ -133,14 +133,32 @@ class NotificationService extends ChangeNotifier {
 
   /// Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
-    debugPrint('Notification tapped: ${response.payload}');
+    final medicationId = response.payload ?? '';
+    debugPrint('Notification tapped: $medicationId');
     // The payload contains the medication ID
-    // Navigation will be handled in main.dart using a GlobalKey
-    _notificationTappedCallback?.call(response.payload ?? '');
+    // Store it in case the app isn't ready yet
+    _pendingNotificationMedicationId = medicationId;
+    // Try to call the callback
+    _notificationTappedCallback?.call(medicationId);
   }
 
   /// Callback for when notification is tapped
   Function(String medicationId)? _notificationTappedCallback;
+
+  /// Pending medication ID from notification tap (when app wasn't ready)
+  String? _pendingNotificationMedicationId;
+
+  /// Get pending notification medication ID
+  String? getPendingNotificationMedicationId() {
+    final id = _pendingNotificationMedicationId;
+    _pendingNotificationMedicationId = null; // Clear after reading
+    return id;
+  }
+
+  /// Trigger notification tap callback (for retry when app becomes ready)
+  void triggerNotificationTapCallback(String medicationId) {
+    _notificationTappedCallback?.call(medicationId);
+  }
 
   /// Set callback for notification taps
   void setNotificationTappedCallback(Function(String medicationId)? callback) {

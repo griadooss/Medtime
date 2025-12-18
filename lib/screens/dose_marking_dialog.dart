@@ -112,14 +112,16 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
           TextButton(
             onPressed: () async {
               // Mark as skipped
+              // Use existingDose's medicationId if available, otherwise use medication.id
+              final correctMedicationId = widget.existingDose?.medicationId ?? widget.medication.id;
               final doseId = widget.existingDose?.id ??
-                  '${widget.medication.id}_${widget.scheduledTime.millisecondsSinceEpoch}';
+                  '${correctMedicationId}_${widget.scheduledTime.millisecondsSinceEpoch}';
 
               // Create dose if it doesn't exist
               if (widget.existingDose == null) {
                 final dose = MedicationDose(
                   id: doseId,
-                  medicationId: widget.medication.id,
+                  medicationId: correctMedicationId,
                   scheduledTime: widget.scheduledTime,
                   skipped: true,
                   notes: _notes,
@@ -141,14 +143,16 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
           ElevatedButton(
             onPressed: () async {
               // Mark as taken
+              // Use existingDose's medicationId if available, otherwise use medication.id
+              final correctMedicationId = widget.existingDose?.medicationId ?? widget.medication.id;
               final doseId = widget.existingDose?.id ??
-                  '${widget.medication.id}_${widget.scheduledTime.millisecondsSinceEpoch}';
+                  '${correctMedicationId}_${widget.scheduledTime.millisecondsSinceEpoch}';
 
               // Create dose if it doesn't exist
               if (widget.existingDose == null) {
                 final dose = MedicationDose(
                   id: doseId,
-                  medicationId: widget.medication.id,
+                  medicationId: correctMedicationId,
                   scheduledTime: widget.scheduledTime,
                   takenTime: DateTime.now(),
                   notes: _notes,

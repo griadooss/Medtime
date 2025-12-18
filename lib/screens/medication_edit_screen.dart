@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/medication.dart';
 import '../services/medication_service.dart';
 import '../services/notification_service.dart';
+import '../services/adherence_service.dart';
 import '../services/app_settings_service.dart';
 
 class MedicationEditScreen extends StatefulWidget {
@@ -592,6 +593,7 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
 
     final medicationService = context.read<MedicationService>();
     final notificationService = context.read<NotificationService>();
+    final adherenceService = context.read<AdherenceService>();
     final messenger = ScaffoldMessenger.of(context);
 
     final medication = widget.medication?.copyWith(
@@ -642,9 +644,11 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
         await medicationService.addMedication(medication);
       }
 
-      // Schedule notifications
+      // Schedule notifications and create dose records
       if (medication.enabled) {
         await notificationService.scheduleMedicationNotifications(medication);
+        // Create dose records proactively for adherence tracking
+        await adherenceService.createScheduledDosesForMedication(medication);
       }
 
       if (!context.mounted) return;
