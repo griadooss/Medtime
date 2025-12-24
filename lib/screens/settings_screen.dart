@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:convert';
 import 'dart:io';
 import '../services/medication_service.dart';
@@ -26,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late int _defaultReminderIntervalMinutes;
   late bool _defaultSkipWeekends;
   late MedicationCategory _defaultCategory;
+  late int _missedDoseTimeoutHours;
 
   final List<String> _availableIcons = [
     'medication',
@@ -34,17 +36,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'local_pharmacy',
   ];
 
+  bool _isSaving = false;
+
   @override
   void initState() {
     super.initState();
+    _loadSettings();
+    // Listen for changes from AppSettingsService
+    context.read<AppSettingsService>().addListener(_onSettingsChanged);
+  }
+
+  @override
+  void dispose() {
+    context.read<AppSettingsService>().removeListener(_onSettingsChanged);
+    super.dispose();
+  }
+
+  void _onSettingsChanged() {
+    if (!mounted || _isSaving) return;
+    _loadSettings();
+  }
+
+  void _loadSettings() {
     final settingsService = context.read<AppSettingsService>();
-    _defaultIconName = settingsService.defaultIconName;
-    _defaultEnabled = settingsService.defaultEnabled;
-    _defaultNotificationBehavior = settingsService.defaultNotificationBehavior;
-    _defaultReminderIntervalMinutes =
-        settingsService.defaultReminderIntervalMinutes;
-    _defaultSkipWeekends = settingsService.defaultSkipWeekends;
-    _defaultCategory = settingsService.defaultCategory;
+    setState(() {
+      _defaultIconName = settingsService.defaultIconName;
+      _defaultEnabled = settingsService.defaultEnabled;
+      _defaultNotificationBehavior = settingsService.defaultNotificationBehavior;
+      _defaultReminderIntervalMinutes =
+          settingsService.defaultReminderIntervalMinutes;
+      _defaultSkipWeekends = settingsService.defaultSkipWeekends;
+      _defaultCategory = settingsService.defaultCategory;
+      _missedDoseTimeoutHours = settingsService.missedDoseTimeoutHours;
+    });
   }
 
   @override
@@ -272,30 +296,98 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   ],
                                                   const SizedBox(height: 16),
                                                   const Text(
-                                                    'Next 5 scheduled notifications:',
+                                                    'Upcoming notifications (sorted by time):',
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
-                                                  ...pending.take(5).map((n) =>
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(top: 8),
+                                                  const SizedBox(height: 8),
+                                                  ..._parseAndSortNotifications(pending).take(20).map((info) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets
+                                                              .only(bottom: 12),
+                                                      child: Container(
+                                                        padding: const EdgeInsets.all(12),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.grey[900]?.withOpacity(0.5),
+                                                          borderRadius: BorderRadius.circular(8),
+                                                          border: Border.all(
+                                                            color: info.isReminder
+                                                                ? Colors.orange[700]!
+                                                                : Colors.green[700]!,
+                                                            width: 1,
+                                                          ),
+                                                        ),
                                                         child: Column(
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            Text('ID: ${n.id}'),
+                                                            // Date and time header
+                                                            Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons.schedule,
+                                                                  size: 16,
+                                                                  color: Colors.green[300],
+                                                                ),
+                                                                const SizedBox(width: 6),
+                                                                Text(
+                                                                  info.formattedDateTime,
+                                                                  style: TextStyle(
+                                                                    color: Colors.green[300],
+                                                                    fontWeight: FontWeight.bold,
+                                                                    fontSize: 15,
+                                                                  ),
+                                                                ),
+                                                                if (info.isReminder) ...[
+                                                                  const SizedBox(width: 8),
+                                                                  Container(
+                                                                    padding: const EdgeInsets.symmetric(
+                                                                      horizontal: 6,
+                                                                      vertical: 2,
+                                                                    ),
+                                                                    decoration: BoxDecoration(
+                                                                      color: Colors.orange[900]?.withOpacity(0.5),
+                                                                      borderRadius: BorderRadius.circular(4),
+                                                                    ),
+                                                                    child: Text(
+                                                                      'REMINDER',
+                                                                      style: TextStyle(
+                                                                        color: Colors.orange[300],
+                                                                        fontSize: 10,
+                                                                        fontWeight: FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ],
+                                                            ),
+                                                            const SizedBox(height: 8),
+                                                            // Title
                                                             Text(
-                                                                'Title: ${n.title}'),
-                                                            Text(
-                                                                'Body: ${n.body}'),
-                                                            const Divider(),
+                                                              info.title,
+                                                              style: const TextStyle(
+                                                                fontWeight: FontWeight.bold,
+                                                                fontSize: 14,
+                                                              ),
+                                                            ),
+                                                            const SizedBox(height: 4),
+                                                            // Body/description
+                                                            if (info.description.isNotEmpty)
+                                                              Text(
+                                                                info.description,
+                                                                style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: Colors.grey[400],
+                                                                ),
+                                                              ),
                                                           ],
                                                         ),
-                                                      )),
+                                                      ),
+                                                    );
+                                                  }),
                                                 ],
                                               ),
                                             ),
@@ -315,6 +407,133 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         'Check Pending Notifications'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.blue[600],
+                                      minimumSize:
+                                          const Size(double.infinity, 40),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      final confirmed = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Clear All Notifications?'),
+                                          content: const Text(
+                                            'This will cancel all scheduled notifications. '
+                                            'Your medications and adherence data will NOT be affected. '
+                                            'You can reschedule notifications by saving any medication or restarting the app.\n\n'
+                                            'Continue?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, true),
+                                              child: const Text('Clear All'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (confirmed == true && context.mounted) {
+                                        await notificationService
+                                            .cancelAllNotifications();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'All notifications cleared'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    icon: const Icon(Icons.clear_all),
+                                    label: const Text('Clear All Notifications'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange[600],
+                                      minimumSize:
+                                          const Size(double.infinity, 40),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () async {
+                                      final confirmed = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Reschedule All Notifications?'),
+                                          content: const Text(
+                                            'This will cancel and reschedule all notifications for all enabled medications. '
+                                            'This is useful if notifications are missing or incorrect.\n\n'
+                                            'Continue?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, true),
+                                              child: const Text('Reschedule All'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (confirmed == true && context.mounted) {
+                                        final medicationService =
+                                            context.read<MedicationService>();
+                                        final enabledMedications =
+                                            medicationService.enabledMedications;
+
+                                        if (enabledMedications.isEmpty) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'No enabled medications found. Enable medications first.'),
+                                              backgroundColor: Colors.orange,
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        // Cancel all existing notifications first
+                                        await notificationService.cancelAllNotifications();
+
+                                        // Schedule grouped notifications for all enabled medications
+                                        await notificationService
+                                            .scheduleAllGroupedNotifications(enabledMedications);
+
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                'Rescheduled grouped notifications for ${enabledMedications.length} enabled medication(s)'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    icon: const Icon(Icons.refresh),
+                                    label: const Text('Reschedule All Notifications'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green[600],
                                       minimumSize:
                                           const Size(double.infinity, 40),
                                     ),
@@ -508,6 +727,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             _defaultEnabled = value;
                           });
                         },
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Missed Dose Timeout
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Missed Dose Auto-Dismiss: $_missedDoseTimeoutHours hours',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Automatically dismiss missed doses after this time',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                            Slider(
+                              value: _missedDoseTimeoutHours.toDouble(),
+                              min: 1,
+                              max: 12,
+                              divisions: 11,
+                              label: '$_missedDoseTimeoutHours hours',
+                              onChanged: (value) {
+                                setState(() {
+                                  _missedDoseTimeoutHours = value.round();
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 16),
 
@@ -774,16 +1025,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _saveDefaultSettings(BuildContext context) async {
     final settingsService = context.read<AppSettingsService>();
 
-    settingsService.setDefaultIconName(_defaultIconName);
-    settingsService.setDefaultEnabled(_defaultEnabled);
-    settingsService
-        .setDefaultNotificationBehavior(_defaultNotificationBehavior);
-    settingsService
-        .setDefaultReminderIntervalMinutes(_defaultReminderIntervalMinutes);
-    settingsService.setDefaultSkipWeekends(_defaultSkipWeekends);
-    settingsService.setDefaultCategory(_defaultCategory);
+    debugPrint('=== Saving Default Settings ===');
+    debugPrint('Reminder interval before save: $_defaultReminderIntervalMinutes');
+    debugPrint('Notification behavior before save: ${_defaultNotificationBehavior.name}');
 
-    await settingsService.saveSettings();
+    _isSaving = true;
+    try {
+      settingsService.setDefaultIconName(_defaultIconName);
+      settingsService.setDefaultEnabled(_defaultEnabled);
+      settingsService
+          .setDefaultNotificationBehavior(_defaultNotificationBehavior);
+      settingsService
+          .setDefaultReminderIntervalMinutes(_defaultReminderIntervalMinutes);
+      settingsService.setDefaultSkipWeekends(_defaultSkipWeekends);
+      settingsService.setDefaultCategory(_defaultCategory);
+      settingsService.setMissedDoseTimeoutHours(_missedDoseTimeoutHours);
+
+      await settingsService.saveSettings();
+
+      // Verify the save
+      debugPrint('Reminder interval after save: ${settingsService.defaultReminderIntervalMinutes}');
+      debugPrint('Notification behavior after save: ${settingsService.defaultNotificationBehavior.name}');
+
+      // Reload from service to ensure UI is in sync
+      if (mounted) {
+        setState(() {
+          _defaultReminderIntervalMinutes =
+              settingsService.defaultReminderIntervalMinutes;
+          _defaultNotificationBehavior =
+              settingsService.defaultNotificationBehavior;
+        });
+      }
+    } finally {
+      _isSaving = false;
+    }
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -816,10 +1091,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        // Handle error
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Cannot open URL: $url'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
-      // Handle error
+      debugPrint('Error launching URL: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening URL: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -959,4 +1249,136 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     }
   }
+
+  /// Parse and sort notifications chronologically
+  List<_NotificationInfo> _parseAndSortNotifications(
+      List<PendingNotificationRequest> notifications) {
+    final List<_NotificationInfo> parsed = [];
+
+    for (final n in notifications) {
+      DateTime? scheduledDateTime;
+      bool isReminder = false;
+      String description = n.body ?? '';
+
+      // Parse new time slot payload format: "timeslot|HH:MM|YYYY-MM-DD" or "reminder|timeslot|HH:MM|YYYY-MM-DD"
+      if (n.payload != null && n.payload!.contains('timeslot|')) {
+        try {
+          final parts = n.payload!.split('|');
+
+          if (parts[0] == 'reminder' && parts.length >= 4) {
+            // Format: "reminder|timeslot|HH:MM|YYYY-MM-DD"
+            isReminder = true;
+            final timeStr = parts[2];
+            final dateStr = parts[3];
+
+            final timeParts = timeStr.split(':');
+            final dateParts = dateStr.split('-');
+
+            if (timeParts.length == 2 && dateParts.length == 3) {
+              scheduledDateTime = DateTime(
+                int.parse(dateParts[0]), // year
+                int.parse(dateParts[1]), // month
+                int.parse(dateParts[2]), // day
+                int.parse(timeParts[0]), // hour
+                int.parse(timeParts[1]), // minute
+              );
+            }
+          } else if (parts[0] == 'timeslot' && parts.length >= 3) {
+            // Format: "timeslot|HH:MM|YYYY-MM-DD"
+            final timeStr = parts[1];
+            final dateStr = parts[2];
+
+            final timeParts = timeStr.split(':');
+            final dateParts = dateStr.split('-');
+
+            if (timeParts.length == 2 && dateParts.length == 3) {
+              scheduledDateTime = DateTime(
+                int.parse(dateParts[0]), // year
+                int.parse(dateParts[1]), // month
+                int.parse(dateParts[2]), // day
+                int.parse(timeParts[0]), // hour
+                int.parse(timeParts[1]), // minute
+              );
+            }
+          }
+        } catch (e) {
+          debugPrint('Error parsing notification payload: $e');
+        }
+      }
+
+      // If we couldn't parse from payload, try to get from notification's scheduled time
+      // (This is a fallback for test notifications or legacy format)
+      if (scheduledDateTime == null) {
+        // For now, use current time as fallback (not ideal, but better than nothing)
+        scheduledDateTime = DateTime.now();
+      }
+
+      // Format date/time for display
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final scheduledDate = DateTime(
+        scheduledDateTime.year,
+        scheduledDateTime.month,
+        scheduledDateTime.day,
+      );
+
+      String formattedDateTime;
+      if (scheduledDate.isAtSameMomentAs(today)) {
+        // Today - show time only
+        final hour = scheduledDateTime.hour;
+        final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
+        final period = hour >= 12 ? 'PM' : 'AM';
+        final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+        formattedDateTime = 'Today at $displayHour:$minute $period';
+      } else if (scheduledDate.isAtSameMomentAs(today.add(const Duration(days: 1)))) {
+        // Tomorrow
+        final hour = scheduledDateTime.hour;
+        final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
+        final period = hour >= 12 ? 'PM' : 'AM';
+        final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+        formattedDateTime = 'Tomorrow at $displayHour:$minute $period';
+      } else {
+        // Other dates - show full date and time
+        final monthNames = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        final hour = scheduledDateTime.hour;
+        final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
+        final period = hour >= 12 ? 'PM' : 'AM';
+        final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+        formattedDateTime = '${scheduledDateTime.day} ${monthNames[scheduledDateTime.month - 1]} ${scheduledDateTime.year} at $displayHour:$minute $period';
+      }
+
+      parsed.add(_NotificationInfo(
+        scheduledDateTime: scheduledDateTime,
+        title: n.title ?? 'Notification',
+        description: description,
+        isReminder: isReminder,
+        formattedDateTime: formattedDateTime,
+      ));
+    }
+
+    // Sort chronologically
+    parsed.sort((a, b) => a.scheduledDateTime.compareTo(b.scheduledDateTime));
+
+    return parsed;
+  }
+}
+
+/// Helper class to hold parsed notification information
+class _NotificationInfo {
+  final DateTime scheduledDateTime;
+  final String title;
+  final String description;
+  final bool isReminder;
+  final String formattedDateTime;
+
+  _NotificationInfo({
+    required this.scheduledDateTime,
+    required this.title,
+    required this.description,
+    required this.isReminder,
+    required this.formattedDateTime,
+  });
 }

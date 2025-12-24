@@ -113,7 +113,8 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
             onPressed: () async {
               // Mark as skipped
               // Use existingDose's medicationId if available, otherwise use medication.id
-              final correctMedicationId = widget.existingDose?.medicationId ?? widget.medication.id;
+              final correctMedicationId =
+                  widget.existingDose?.medicationId ?? widget.medication.id;
               final doseId = widget.existingDose?.id ??
                   '${correctMedicationId}_${widget.scheduledTime.millisecondsSinceEpoch}';
 
@@ -144,7 +145,8 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
             onPressed: () async {
               // Mark as taken
               // Use existingDose's medicationId if available, otherwise use medication.id
-              final correctMedicationId = widget.existingDose?.medicationId ?? widget.medication.id;
+              final correctMedicationId =
+                  widget.existingDose?.medicationId ?? widget.medication.id;
               final doseId = widget.existingDose?.id ??
                   '${correctMedicationId}_${widget.scheduledTime.millisecondsSinceEpoch}';
 

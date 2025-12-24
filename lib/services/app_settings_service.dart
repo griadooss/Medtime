@@ -12,6 +12,7 @@ class AppSettingsService extends ChangeNotifier {
   int _defaultReminderIntervalMinutes = 15;
   bool _defaultSkipWeekends = false;
   MedicationCategory _defaultCategory = MedicationCategory.other;
+  int _missedDoseTimeoutHours = 3; // Auto-dismiss missed doses after 3 hours
 
   // Getters
   String get defaultIconName => _defaultIconName;
@@ -21,6 +22,7 @@ class AppSettingsService extends ChangeNotifier {
   int get defaultReminderIntervalMinutes => _defaultReminderIntervalMinutes;
   bool get defaultSkipWeekends => _defaultSkipWeekends;
   MedicationCategory get defaultCategory => _defaultCategory;
+  int get missedDoseTimeoutHours => _missedDoseTimeoutHours;
 
   AppSettingsService() {
     _loadSettings();
@@ -36,15 +38,27 @@ class AppSettingsService extends ChangeNotifier {
 
       final behaviorString = prefs.getString('defaultNotificationBehavior');
       if (behaviorString != null) {
-        _defaultNotificationBehavior = NotificationBehavior.values.firstWhere(
-          (e) => e.name == behaviorString,
-          orElse: () => NotificationBehavior.dismiss,
-        );
+        try {
+          _defaultNotificationBehavior = NotificationBehavior.values.firstWhere(
+            (e) => e.name == behaviorString,
+          );
+          debugPrint('Loaded notification behavior: ${_defaultNotificationBehavior.name}');
+        } catch (e) {
+          debugPrint('Invalid notification behavior: $behaviorString, using default');
+          _defaultNotificationBehavior = NotificationBehavior.dismiss;
+        }
+      } else {
+        // If not set, keep the default (dismiss)
+        _defaultNotificationBehavior = NotificationBehavior.dismiss;
+        debugPrint('No saved notification behavior, using default: dismiss');
       }
+
+      debugPrint('Loaded reminder interval: $_defaultReminderIntervalMinutes minutes');
 
       _defaultReminderIntervalMinutes =
           prefs.getInt('defaultReminderIntervalMinutes') ?? 15;
       _defaultSkipWeekends = prefs.getBool('defaultSkipWeekends') ?? false;
+      _missedDoseTimeoutHours = prefs.getInt('missedDoseTimeoutHours') ?? 3;
 
       final categoryString = prefs.getString('defaultCategory');
       if (categoryString != null) {
@@ -79,7 +93,9 @@ class AppSettingsService extends ChangeNotifier {
           'defaultReminderIntervalMinutes', _defaultReminderIntervalMinutes);
       await prefs.setBool('defaultSkipWeekends', _defaultSkipWeekends);
       await prefs.setString('defaultCategory', _defaultCategory.name);
+      await prefs.setInt('missedDoseTimeoutHours', _missedDoseTimeoutHours);
 
+      debugPrint('Settings saved: notificationBehavior=${_defaultNotificationBehavior.name}, reminderInterval=${_defaultReminderIntervalMinutes}');
       notifyListeners();
     } catch (e) {
       debugPrint('Error saving app settings: $e');
@@ -108,7 +124,10 @@ class AppSettingsService extends ChangeNotifier {
   void setDefaultReminderIntervalMinutes(int minutes) {
     if (minutes >= 5 && minutes <= 60) {
       _defaultReminderIntervalMinutes = minutes;
+      debugPrint('setDefaultReminderIntervalMinutes: $minutes');
       notifyListeners();
+    } else {
+      debugPrint('WARNING: Invalid reminder interval: $minutes (must be 5-60)');
     }
   }
 
@@ -122,6 +141,14 @@ class AppSettingsService extends ChangeNotifier {
   void setDefaultCategory(MedicationCategory category) {
     _defaultCategory = category;
     notifyListeners();
+  }
+
+  /// Set missed dose timeout (hours)
+  void setMissedDoseTimeoutHours(int hours) {
+    if (hours >= 1 && hours <= 24) {
+      _missedDoseTimeoutHours = hours;
+      notifyListeners();
+    }
   }
 
   /// Export settings as JSON (for backup)

@@ -4,10 +4,9 @@ import 'services/medication_service.dart';
 import 'services/notification_service.dart';
 import 'services/adherence_service.dart';
 import 'services/app_settings_service.dart';
-import 'screens/dose_marking_dialog.dart';
-import 'screens/startup_checker.dart';
 import 'models/medication_dose.dart';
-import 'models/medication.dart';
+import 'screens/missed_doses_reminder_screen.dart';
+import 'screens/startup_checker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,8 +35,8 @@ class _MedtimeAppState extends State<MedtimeApp> {
             final service = NotificationService();
             service.initialize();
             // Set up notification tap callback
-            service.setNotificationTappedCallback((medicationId) {
-              _handleNotificationTap(medicationId);
+            service.setNotificationTappedCallback((payload) {
+              _handleNotificationTap(payload);
             });
             return service;
           },
@@ -60,9 +59,9 @@ class _MedtimeAppState extends State<MedtimeApp> {
     );
   }
 
-  void _handleNotificationTap(String medicationId) {
+  void _handleNotificationTap(String payload) {
     debugPrint('=== Notification Tap Handler ===');
-    debugPrint('Received medicationId: $medicationId');
+    debugPrint('Received payload: $payload');
 
     // Check if context is available
     final context = navigatorKey.currentContext;
@@ -72,6 +71,10 @@ class _MedtimeAppState extends State<MedtimeApp> {
       return;
     }
 
+    final notificationService = Provider.of<NotificationService>(
+      context,
+      listen: false,
+    );
     final medicationService = Provider.of<MedicationService>(
       context,
       listen: false,
@@ -81,93 +84,111 @@ class _MedtimeAppState extends State<MedtimeApp> {
       listen: false,
     );
 
-    // Find medication - don't use fallback, show error if not found
-    Medication? medication;
-    try {
-      medication = medicationService.medications.firstWhere(
-        (m) => m.id == medicationId,
-      );
-      debugPrint('Found medication: ${medication.name} (ID: ${medication.id})');
-    } catch (e) {
-      debugPrint('ERROR: Medication not found for ID: $medicationId');
-      debugPrint('Available medications:');
-      for (final med in medicationService.medications) {
-        debugPrint('  - ${med.name} (ID: ${med.id})');
+    // Check if this is a time slot notification (new grouped approach)
+    if (payload.contains('timeslot|')) {
+      debugPrint('Time slot notification detected');
+
+      // Parse time slot and date from payload
+      final timeSlot = notificationService.parseTimeSlotFromPayload(payload);
+      final notificationDate = notificationService.parseDateFromPayload(payload);
+
+      if (timeSlot == null || notificationDate == null) {
+        debugPrint('ERROR: Could not parse time slot or date from payload: $payload');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: Invalid notification payload'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
       }
-      // Show error to user
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error: Medication not found'),
-          backgroundColor: Colors.red,
-        ),
+
+      debugPrint('Time slot: ${timeSlot.timeString}, Date: $notificationDate');
+
+      // Get all medications scheduled for this time slot
+      final enabledMedications = medicationService.enabledMedications;
+      final medicationsForTimeSlot = enabledMedications.where((med) {
+        if (!med.enabled) return false;
+
+        // Check if medication has this time slot
+        return med.times.any((time) =>
+          time.hour == timeSlot.hour && time.minute == timeSlot.minute
+        );
+      }).toList();
+
+      if (medicationsForTimeSlot.isEmpty) {
+        debugPrint('No medications found for time slot ${timeSlot.timeString}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No medications scheduled for this time'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
+      debugPrint('Found ${medicationsForTimeSlot.length} medications for time slot ${timeSlot.timeString}');
+
+      // Get doses needing attention for these medications, filtered by time slot
+      final medicationIds = medicationsForTimeSlot.map((m) => m.id).toList();
+      final allDosesNeedingAttention = adherenceService.getDosesNeedingAttention(
+        medicationIds: medicationIds,
       );
+
+      // Filter doses to only those scheduled for the notification date and time slot
+      final filteredDoses = <String, List<MedicationDose>>{};
+      for (final entry in allDosesNeedingAttention.entries) {
+        final medicationId = entry.key;
+        final doses = entry.value;
+
+        // Filter doses for this date and time slot
+        final matchingDoses = doses.where((dose) {
+          final doseDate = DateTime(dose.scheduledTime.year, dose.scheduledTime.month, dose.scheduledTime.day);
+          final notificationDateOnly = DateTime(notificationDate.year, notificationDate.month, notificationDate.day);
+
+          return doseDate.isAtSameMomentAs(notificationDateOnly) &&
+                 dose.scheduledTime.hour == timeSlot.hour &&
+                 dose.scheduledTime.minute == timeSlot.minute;
+        }).toList();
+
+        if (matchingDoses.isNotEmpty) {
+          filteredDoses[medicationId] = matchingDoses;
+        }
+      }
+
+      // Show reminder screen with filtered doses
+      if (context.mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => MissedDosesReminderScreen(
+              dosesNeedingAttention: filteredDoses,
+            ),
+          ),
+        );
+      }
+
       return;
     }
 
-    // Find the most recent scheduled dose for this medication
-    final now = DateTime.now();
-    final scheduledTime = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      now.hour,
-      now.minute,
+    // Legacy handling for old medication ID based payloads (backward compatibility)
+    debugPrint('Legacy medication ID payload detected: $payload');
+    debugPrint('WARNING: This is the old notification format. Consider rescheduling notifications.');
+
+    // For backward compatibility, show all missed doses
+    final enabledMedications = medicationService.enabledMedications;
+    final medicationIds = enabledMedications.map((m) => m.id).toList();
+    final dosesNeedingAttention = adherenceService.getDosesNeedingAttention(
+      medicationIds: medicationIds,
     );
 
-    debugPrint('Looking for dose at: $scheduledTime');
-
-    // Find existing dose or create a new one
-    final doses = adherenceService.getDosesForMedication(medicationId);
-    debugPrint('Found ${doses.length} doses for medication ${medication.name}');
-    MedicationDose? existingDose;
-
-    // Try to find a dose scheduled for today around this time
-    for (final dose in doses) {
-      if (dose.scheduledTime.year == now.year &&
-          dose.scheduledTime.month == now.month &&
-          dose.scheduledTime.day == now.day) {
-        // Check if it's within 2 hours of the scheduled time
-        final diff = (dose.scheduledTime.difference(scheduledTime)).abs();
-        if (diff.inHours < 2) {
-          existingDose = dose;
-          debugPrint('Found existing dose: ${dose.id} at ${dose.scheduledTime}');
-          break;
-        }
-      }
-    }
-
-    // If no existing dose, create one for tracking
-    if (existingDose == null) {
-      debugPrint('No existing dose found, creating new one');
-      final dose = MedicationDose(
-        id: '${medicationId}_${scheduledTime.millisecondsSinceEpoch}',
-        medicationId: medicationId,
-        scheduledTime: scheduledTime,
-      );
-      adherenceService.addScheduledDose(dose);
-      existingDose = dose;
-      debugPrint('Created new dose: ${dose.id} for medication ${medication.name}');
-    }
-
-    // Verify the dose belongs to the correct medication
-    if (existingDose.medicationId != medication.id) {
-      debugPrint('ERROR: Dose medicationId mismatch!');
-      debugPrint('  Dose medicationId: ${existingDose.medicationId}');
-      debugPrint('  Medication ID: ${medication.id}');
-    }
-
-    // Show dialog (medication is guaranteed to be non-null here due to early return above)
-    if (context.mounted) {
-      showDialog(
-        context: context,
-        builder: (dialogContext) => DoseMarkingDialog(
-          medication: medication!,
-          scheduledTime: existingDose!.scheduledTime,
-          existingDose: existingDose,
+    if (dosesNeedingAttention.isNotEmpty && context.mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MissedDosesReminderScreen(
+            dosesNeedingAttention: dosesNeedingAttention,
+          ),
         ),
       );
-    } else {
-      debugPrint('ERROR: Cannot show dialog - context not mounted');
     }
   }
 
@@ -177,12 +198,12 @@ class _MedtimeAppState extends State<MedtimeApp> {
       navigatorKey.currentContext!,
       listen: false,
     );
-    final medicationId = notificationService.getPendingNotificationMedicationId();
-    if (medicationId != null && medicationId.isNotEmpty) {
-      debugPrint('Found pending notification for: $medicationId');
+    final payload = notificationService.getPendingNotificationPayload();
+    if (payload != null && payload.isNotEmpty) {
+      debugPrint('Found pending notification with payload: $payload');
       // Small delay to ensure navigation is complete
       Future.delayed(const Duration(milliseconds: 800), () {
-        _handleNotificationTap(medicationId);
+        _handleNotificationTap(payload);
       });
     }
   }

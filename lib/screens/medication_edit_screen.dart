@@ -644,11 +644,23 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
         await medicationService.addMedication(medication);
       }
 
-      // Schedule notifications and create dose records
+      // Schedule grouped notifications and create dose records
       if (medication.enabled) {
-        await notificationService.scheduleMedicationNotifications(medication);
         // Create dose records proactively for adherence tracking
         await adherenceService.createScheduledDosesForMedication(medication);
+
+        // Reschedule all grouped notifications (since medications are grouped by time slot)
+        final allMedications = medicationService.medications;
+        final enabledMedications = allMedications.where((m) => m.enabled).toList();
+        await notificationService.scheduleAllGroupedNotifications(enabledMedications);
+
+        debugPrint('Rescheduled grouped notifications for all ${enabledMedications.length} enabled medications');
+      } else {
+        // Medication is disabled - reschedule all to remove it from time slot notifications
+        final allMedications = medicationService.medications;
+        final enabledMedications = allMedications.where((m) => m.enabled).toList();
+        await notificationService.scheduleAllGroupedNotifications(enabledMedications);
+        debugPrint('Rescheduled grouped notifications (medication disabled)');
       }
 
       if (!context.mounted) return;
@@ -716,12 +728,13 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
       final medicationService = context.read<MedicationService>();
       final notificationService = context.read<NotificationService>();
 
-      // Cancel notifications
-      await notificationService
-          .cancelMedicationNotifications(widget.medication!.id);
-
-      // Delete medication
+      // Delete medication first
       await medicationService.deleteMedication(widget.medication!.id);
+
+      // Reschedule all grouped notifications (to remove this medication from time slots)
+      final allMedications = medicationService.medications;
+      final enabledMedications = allMedications.where((m) => m.enabled).toList();
+      await notificationService.scheduleAllGroupedNotifications(enabledMedications);
 
       if (!context.mounted) return;
       Navigator.pop(context);

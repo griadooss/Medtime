@@ -159,6 +159,86 @@ class AdherenceService extends ChangeNotifier {
     );
   }
 
+  /// Get adherence statistics for a medication within a date range
+  AdherenceStats getAdherenceStatsForDateRange(
+    String medicationId, {
+    required DateTime startDate,
+    required DateTime endDate,
+  }) {
+    final now = DateTime.now();
+    final startOfStartDate =
+        DateTime(startDate.year, startDate.month, startDate.day);
+    final endOfEndDate =
+        DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+
+    final relevantDoses = _doses
+        .where((d) =>
+            d.medicationId == medicationId &&
+            d.scheduledTime.isAfter(
+                startOfStartDate.subtract(const Duration(seconds: 1))) &&
+            d.scheduledTime
+                .isBefore(endOfEndDate.add(const Duration(seconds: 1))))
+        .toList();
+
+    final taken = relevantDoses.where((d) => d.isTaken).length;
+    final missed = relevantDoses.where((d) => d.isMissed(now)).length;
+    final skipped = relevantDoses.where((d) => d.skipped).length;
+    final pending = relevantDoses
+        .where((d) => !d.isTaken && !d.skipped && !d.isMissed(now))
+        .length;
+
+    final total = relevantDoses.length;
+    final adherenceRate = total > 0 ? (taken / total * 100) : 0.0;
+
+    return AdherenceStats(
+      total: total,
+      taken: taken,
+      missed: missed,
+      skipped: skipped,
+      pending: pending,
+      adherenceRate: adherenceRate,
+    );
+  }
+
+  /// Get overall adherence statistics within a date range
+  AdherenceStats getOverallAdherenceStatsForDateRange({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) {
+    final now = DateTime.now();
+    final startOfStartDate =
+        DateTime(startDate.year, startDate.month, startDate.day);
+    final endOfEndDate =
+        DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+
+    final relevantDoses = _doses
+        .where((d) =>
+            d.scheduledTime.isAfter(
+                startOfStartDate.subtract(const Duration(seconds: 1))) &&
+            d.scheduledTime
+                .isBefore(endOfEndDate.add(const Duration(seconds: 1))))
+        .toList();
+
+    final taken = relevantDoses.where((d) => d.isTaken).length;
+    final missed = relevantDoses.where((d) => d.isMissed(now)).length;
+    final skipped = relevantDoses.where((d) => d.skipped).length;
+    final pending = relevantDoses
+        .where((d) => !d.isTaken && !d.skipped && !d.isMissed(now))
+        .length;
+
+    final total = relevantDoses.length;
+    final adherenceRate = total > 0 ? (taken / total * 100) : 0.0;
+
+    return AdherenceStats(
+      total: total,
+      taken: taken,
+      missed: missed,
+      skipped: skipped,
+      pending: pending,
+      adherenceRate: adherenceRate,
+    );
+  }
+
   /// Delete old doses (older than specified days)
   Future<void> cleanupOldDoses(int keepDays) async {
     final cutoffDate = DateTime.now().subtract(Duration(days: keepDays));
@@ -220,34 +300,26 @@ class AdherenceService extends ChangeNotifier {
     }).toList();
   }
 
-  /// Get doses that need attention (missed or pending) for reminder screen
-  /// Returns map with 'missed' and 'pending' lists, grouped by medication
+  /// Get doses that need attention (missed only) for reminder screen
+  /// Only shows doses that have actually been missed (scheduled time has passed)
+  /// Returns map grouped by medication
   Map<String, List<MedicationDose>> getDosesNeedingAttention({
     required List<String> medicationIds,
   }) {
-    final now = DateTime.now();
     final result = <String, List<MedicationDose>>{};
 
     for (final medicationId in medicationIds) {
       final doses = <MedicationDose>[];
 
       // Get most recent missed dose (only previous scheduled time)
+      // Only show doses that have actually been missed (time has passed)
       final missedDose = getMostRecentMissedDose(medicationId);
       if (missedDose != null) {
         doses.add(missedDose);
       }
 
-      // Get pending doses (due within 15 minutes)
-      final pendingDoses = getDosesForMedication(medicationId)
-          .where((d) {
-            return !d.isTaken &&
-                !d.skipped &&
-                d.scheduledTime.isAfter(now) &&
-                d.scheduledTime.isBefore(now.add(const Duration(minutes: 15)));
-          })
-          .toList();
-
-      doses.addAll(pendingDoses);
+      // Removed pending doses - only show actually missed doses
+      // The notification system handles scheduled reminders
 
       if (doses.isNotEmpty) {
         result[medicationId] = doses;
