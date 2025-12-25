@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'dart:convert';
 import 'dart:io';
 import '../services/medication_service.dart';
@@ -922,6 +923,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         trailing: const Icon(Icons.open_in_new, size: 18),
                         onTap: () => _launchUrl(
                             'https://medtime.zimpics.com/privacy.html'),
+                      ),
+                      const Divider(height: 1),
+                      FutureBuilder<PackageInfo>(
+                        future: PackageInfo.fromPlatform(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            final packageInfo = snapshot.data!;
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(
+                                'Version ${packageInfo.version} (${packageInfo.buildNumber})',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[500],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
                     ],
                   ),
