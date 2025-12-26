@@ -28,9 +28,12 @@
   "files.trimTrailingWhitespace": true,
   "files.eol": "\n",
 
-  // Prevent auto-formatting on file open (only format on save)
+  // Format on save (pre-commit hook will also format before commits)
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
+  
+  // Note: A pre-commit git hook automatically formats Dart files before commits
+  // This ensures consistent formatting even if formatOnSave is disabled
 
   // Exclude build and generated files from formatting
   "files.exclude": {
