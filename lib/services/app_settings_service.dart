@@ -42,9 +42,11 @@ class AppSettingsService extends ChangeNotifier {
           _defaultNotificationBehavior = NotificationBehavior.values.firstWhere(
             (e) => e.name == behaviorString,
           );
-          debugPrint('Loaded notification behavior: ${_defaultNotificationBehavior.name}');
+          debugPrint(
+              'Loaded notification behavior: ${_defaultNotificationBehavior.name}');
         } catch (e) {
-          debugPrint('Invalid notification behavior: $behaviorString, using default');
+          debugPrint(
+              'Invalid notification behavior: $behaviorString, using default');
           _defaultNotificationBehavior = NotificationBehavior.dismiss;
         }
       } else {
@@ -53,7 +55,8 @@ class AppSettingsService extends ChangeNotifier {
         debugPrint('No saved notification behavior, using default: dismiss');
       }
 
-      debugPrint('Loaded reminder interval: $_defaultReminderIntervalMinutes minutes');
+      debugPrint(
+          'Loaded reminder interval: $_defaultReminderIntervalMinutes minutes');
 
       _defaultReminderIntervalMinutes =
           prefs.getInt('defaultReminderIntervalMinutes') ?? 15;
@@ -95,7 +98,8 @@ class AppSettingsService extends ChangeNotifier {
       await prefs.setString('defaultCategory', _defaultCategory.name);
       await prefs.setInt('missedDoseTimeoutHours', _missedDoseTimeoutHours);
 
-      debugPrint('Settings saved: notificationBehavior=${_defaultNotificationBehavior.name}, reminderInterval=${_defaultReminderIntervalMinutes}');
+      debugPrint(
+          'Settings saved: notificationBehavior=${_defaultNotificationBehavior.name}, reminderInterval=${_defaultReminderIntervalMinutes}');
       notifyListeners();
     } catch (e) {
       debugPrint('Error saving app settings: $e');

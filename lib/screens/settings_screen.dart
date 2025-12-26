@@ -63,7 +63,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _defaultIconName = settingsService.defaultIconName;
       _defaultEnabled = settingsService.defaultEnabled;
-      _defaultNotificationBehavior = settingsService.defaultNotificationBehavior;
+      _defaultNotificationBehavior =
+          settingsService.defaultNotificationBehavior;
       _defaultReminderIntervalMinutes =
           settingsService.defaultReminderIntervalMinutes;
       _defaultSkipWeekends = settingsService.defaultSkipWeekends;
@@ -303,20 +304,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                             FontWeight.bold),
                                                   ),
                                                   const SizedBox(height: 8),
-                                                  ..._parseAndSortNotifications(pending).take(20).map((info) {
+                                                  ..._parseAndSortNotifications(
+                                                          pending)
+                                                      .take(20)
+                                                      .map((info) {
                                                     return Padding(
                                                       padding:
-                                                          const EdgeInsets
-                                                              .only(bottom: 12),
+                                                          const EdgeInsets.only(
+                                                              bottom: 12),
                                                       child: Container(
-                                                        padding: const EdgeInsets.all(12),
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.grey[900]?.withOpacity(0.5),
-                                                          borderRadius: BorderRadius.circular(8),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(12),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors
+                                                              .grey[900]
+                                                              ?.withOpacity(
+                                                                  0.5),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
                                                           border: Border.all(
-                                                            color: info.isReminder
-                                                                ? Colors.orange[700]!
-                                                                : Colors.green[700]!,
+                                                            color: info
+                                                                    .isReminder
+                                                                ? Colors.orange[
+                                                                    700]!
+                                                                : Colors.green[
+                                                                    700]!,
                                                             width: 1,
                                                           ),
                                                         ),
@@ -329,59 +344,95 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                             Row(
                                                               children: [
                                                                 Icon(
-                                                                  Icons.schedule,
+                                                                  Icons
+                                                                      .schedule,
                                                                   size: 16,
-                                                                  color: Colors.green[300],
+                                                                  color: Colors
+                                                                          .green[
+                                                                      300],
                                                                 ),
-                                                                const SizedBox(width: 6),
+                                                                const SizedBox(
+                                                                    width: 6),
                                                                 Text(
                                                                   info.formattedDateTime,
-                                                                  style: TextStyle(
-                                                                    color: Colors.green[300],
-                                                                    fontWeight: FontWeight.bold,
-                                                                    fontSize: 15,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                            .green[
+                                                                        300],
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        15,
                                                                   ),
                                                                 ),
-                                                                if (info.isReminder) ...[
-                                                                  const SizedBox(width: 8),
+                                                                if (info
+                                                                    .isReminder) ...[
+                                                                  const SizedBox(
+                                                                      width: 8),
                                                                   Container(
-                                                                    padding: const EdgeInsets.symmetric(
-                                                                      horizontal: 6,
-                                                                      vertical: 2,
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .symmetric(
+                                                                      horizontal:
+                                                                          6,
+                                                                      vertical:
+                                                                          2,
                                                                     ),
-                                                                    decoration: BoxDecoration(
-                                                                      color: Colors.orange[900]?.withOpacity(0.5),
-                                                                      borderRadius: BorderRadius.circular(4),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: Colors
+                                                                          .orange[
+                                                                              900]
+                                                                          ?.withOpacity(
+                                                                              0.5),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              4),
                                                                     ),
                                                                     child: Text(
                                                                       'REMINDER',
-                                                                      style: TextStyle(
-                                                                        color: Colors.orange[300],
-                                                                        fontSize: 10,
-                                                                        fontWeight: FontWeight.bold,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .orange[300],
+                                                                        fontSize:
+                                                                            10,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
                                                                       ),
                                                                     ),
                                                                   ),
                                                                 ],
                                                               ],
                                                             ),
-                                                            const SizedBox(height: 8),
+                                                            const SizedBox(
+                                                                height: 8),
                                                             // Title
                                                             Text(
                                                               info.title,
-                                                              style: const TextStyle(
-                                                                fontWeight: FontWeight.bold,
+                                                              style:
+                                                                  const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
                                                                 fontSize: 14,
                                                               ),
                                                             ),
-                                                            const SizedBox(height: 4),
+                                                            const SizedBox(
+                                                                height: 4),
                                                             // Body/description
-                                                            if (info.description.isNotEmpty)
+                                                            if (info.description
+                                                                .isNotEmpty)
                                                               Text(
                                                                 info.description,
-                                                                style: TextStyle(
+                                                                style:
+                                                                    TextStyle(
                                                                   fontSize: 12,
-                                                                  color: Colors.grey[400],
+                                                                  color: Colors
+                                                                          .grey[
+                                                                      400],
                                                                 ),
                                                               ),
                                                           ],
@@ -422,7 +473,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       final confirmed = await showDialog<bool>(
                                         context: context,
                                         builder: (context) => AlertDialog(
-                                          title: const Text('Clear All Notifications?'),
+                                          title: const Text(
+                                              'Clear All Notifications?'),
                                           content: const Text(
                                             'This will cancel all scheduled notifications. '
                                             'Your medications and adherence data will NOT be affected. '
@@ -444,7 +496,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ),
                                       );
 
-                                      if (confirmed == true && context.mounted) {
+                                      if (confirmed == true &&
+                                          context.mounted) {
                                         await notificationService
                                             .cancelAllNotifications();
                                         ScaffoldMessenger.of(context)
@@ -458,7 +511,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       }
                                     },
                                     icon: const Icon(Icons.clear_all),
-                                    label: const Text('Clear All Notifications'),
+                                    label:
+                                        const Text('Clear All Notifications'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.orange[600],
                                       minimumSize:
@@ -475,7 +529,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       final confirmed = await showDialog<bool>(
                                         context: context,
                                         builder: (context) => AlertDialog(
-                                          title: const Text('Reschedule All Notifications?'),
+                                          title: const Text(
+                                              'Reschedule All Notifications?'),
                                           content: const Text(
                                             'This will cancel and reschedule all notifications for all enabled medications. '
                                             'This is useful if notifications are missing or incorrect.\n\n'
@@ -490,17 +545,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             TextButton(
                                               onPressed: () =>
                                                   Navigator.pop(context, true),
-                                              child: const Text('Reschedule All'),
+                                              child:
+                                                  const Text('Reschedule All'),
                                             ),
                                           ],
                                         ),
                                       );
 
-                                      if (confirmed == true && context.mounted) {
+                                      if (confirmed == true &&
+                                          context.mounted) {
                                         final medicationService =
                                             context.read<MedicationService>();
                                         final enabledMedications =
-                                            medicationService.enabledMedications;
+                                            medicationService
+                                                .enabledMedications;
 
                                         if (enabledMedications.isEmpty) {
                                           ScaffoldMessenger.of(context)
@@ -515,11 +573,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         }
 
                                         // Cancel all existing notifications first
-                                        await notificationService.cancelAllNotifications();
+                                        await notificationService
+                                            .cancelAllNotifications();
 
                                         // Schedule grouped notifications for all enabled medications
                                         await notificationService
-                                            .scheduleAllGroupedNotifications(enabledMedications);
+                                            .scheduleAllGroupedNotifications(
+                                                enabledMedications);
 
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
@@ -532,7 +592,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       }
                                     },
                                     icon: const Icon(Icons.refresh),
-                                    label: const Text('Reschedule All Notifications'),
+                                    label: const Text(
+                                        'Reschedule All Notifications'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.green[600],
                                       minimumSize:
@@ -931,12 +992,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           if (snapshot.hasData) {
                             final packageInfo = snapshot.data!;
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
                               child: Text(
                                 'Version ${packageInfo.version} (${packageInfo.buildNumber})',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[500],
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Colors.grey[500],
+                                    ),
                                 textAlign: TextAlign.center,
                               ),
                             );
@@ -1047,8 +1112,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final settingsService = context.read<AppSettingsService>();
 
     debugPrint('=== Saving Default Settings ===');
-    debugPrint('Reminder interval before save: $_defaultReminderIntervalMinutes');
-    debugPrint('Notification behavior before save: ${_defaultNotificationBehavior.name}');
+    debugPrint(
+        'Reminder interval before save: $_defaultReminderIntervalMinutes');
+    debugPrint(
+        'Notification behavior before save: ${_defaultNotificationBehavior.name}');
 
     _isSaving = true;
     try {
@@ -1065,8 +1132,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await settingsService.saveSettings();
 
       // Verify the save
-      debugPrint('Reminder interval after save: ${settingsService.defaultReminderIntervalMinutes}');
-      debugPrint('Notification behavior after save: ${settingsService.defaultNotificationBehavior.name}');
+      debugPrint(
+          'Reminder interval after save: ${settingsService.defaultReminderIntervalMinutes}');
+      debugPrint(
+          'Notification behavior after save: ${settingsService.defaultNotificationBehavior.name}');
 
       // Reload from service to ensure UI is in sync
       if (mounted) {
@@ -1351,7 +1420,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final period = hour >= 12 ? 'PM' : 'AM';
         final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
         formattedDateTime = 'Today at $displayHour:$minute $period';
-      } else if (scheduledDate.isAtSameMomentAs(today.add(const Duration(days: 1)))) {
+      } else if (scheduledDate
+          .isAtSameMomentAs(today.add(const Duration(days: 1)))) {
         // Tomorrow
         final hour = scheduledDateTime.hour;
         final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
@@ -1361,14 +1431,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } else {
         // Other dates - show full date and time
         final monthNames = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec'
         ];
         final hour = scheduledDateTime.hour;
         final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
         final period = hour >= 12 ? 'PM' : 'AM';
         final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-        formattedDateTime = '${scheduledDateTime.day} ${monthNames[scheduledDateTime.month - 1]} ${scheduledDateTime.year} at $displayHour:$minute $period';
+        formattedDateTime =
+            '${scheduledDateTime.day} ${monthNames[scheduledDateTime.month - 1]} ${scheduledDateTime.year} at $displayHour:$minute $period';
       }
 
       parsed.add(_NotificationInfo(

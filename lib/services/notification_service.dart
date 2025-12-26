@@ -12,7 +12,8 @@ class TimeSlot {
 
   TimeSlot({required this.hour, required this.minute});
 
-  String get timeString => '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+  String get timeString =>
+      '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
   @override
   bool operator ==(Object other) =>
@@ -270,20 +271,24 @@ class NotificationService extends ChangeNotifier {
   /// - Only schedules notifications that don't already exist
   /// - Automatically extends the window when called (e.g., on app startup)
   /// - No need to manually reschedule if you open the app at least once per week
-  Future<void> scheduleAllGroupedNotifications(List<Medication> medications) async {
+  Future<void> scheduleAllGroupedNotifications(
+      List<Medication> medications) async {
     try {
       if (!_initialized) {
         await initialize();
       }
 
       if (!_permissionGranted) {
-        debugPrint('ERROR: Notification permission not granted! Cannot schedule notifications.');
+        debugPrint(
+            'ERROR: Notification permission not granted! Cannot schedule notifications.');
         throw Exception('Notification permission not granted');
       }
 
-      debugPrint('=== Scheduling grouped notifications for all medications ===');
+      debugPrint(
+          '=== Scheduling grouped notifications for all medications ===');
       debugPrint('Total medications provided: ${medications.length}');
-      debugPrint('Enabled medications: ${medications.where((m) => m.enabled).length}');
+      debugPrint(
+          'Enabled medications: ${medications.where((m) => m.enabled).length}');
 
       if (medications.isEmpty) {
         debugPrint('WARNING: No medications provided to schedule');
@@ -295,16 +300,19 @@ class NotificationService extends ChangeNotifier {
       debugPrint('Found ${timeSlotGroups.length} unique time slots');
 
       if (timeSlotGroups.isEmpty) {
-        debugPrint('WARNING: No time slots found! Check that medications have scheduled times and are enabled.');
+        debugPrint(
+            'WARNING: No time slots found! Check that medications have scheduled times and are enabled.');
         for (final med in medications) {
-          debugPrint('  - ${med.name}: enabled=${med.enabled}, times=${med.times.length}');
+          debugPrint(
+              '  - ${med.name}: enabled=${med.enabled}, times=${med.times.length}');
         }
         return;
       }
 
       // Log time slots found
       for (final entry in timeSlotGroups.entries) {
-        debugPrint('  Time slot ${entry.key.timeString}: ${entry.value.length} medication(s)');
+        debugPrint(
+            '  Time slot ${entry.key.timeString}: ${entry.value.length} medication(s)');
       }
 
       final now = DateTime.now();
@@ -315,7 +323,8 @@ class NotificationService extends ChangeNotifier {
       int alreadyScheduledCount = 0;
 
       // Get existing pending notifications to avoid duplicates
-      final existingNotifications = await _notifications.pendingNotificationRequests();
+      final existingNotifications =
+          await _notifications.pendingNotificationRequests();
       final existingPayloads = existingNotifications
           .where((n) => n.payload != null && n.payload!.contains('timeslot|'))
           .map((n) => n.payload!)
@@ -349,19 +358,23 @@ class NotificationService extends ChangeNotifier {
           );
 
           // Skip if time has already passed today (with 5 minute buffer)
-          if (dayOffset == 0 && scheduledDateTime.isBefore(now.subtract(const Duration(minutes: 5)))) {
+          if (dayOffset == 0 &&
+              scheduledDateTime
+                  .isBefore(now.subtract(const Duration(minutes: 5)))) {
             debugPrint('Skipping past time slot: ${timeSlot.timeString}');
             skippedCount++;
             continue;
           }
 
           // Check if notification already exists (rolling window - don't reschedule existing ones)
-          final dateKey = '${scheduledDateTime.year}-${scheduledDateTime.month.toString().padLeft(2, '0')}-${scheduledDateTime.day.toString().padLeft(2, '0')}';
+          final dateKey =
+              '${scheduledDateTime.year}-${scheduledDateTime.month.toString().padLeft(2, '0')}-${scheduledDateTime.day.toString().padLeft(2, '0')}';
           final expectedPayload = 'timeslot|${timeSlot.timeString}|$dateKey';
 
           if (existingPayloads.contains(expectedPayload)) {
             alreadyScheduledCount++;
-            debugPrint('Notification already scheduled for ${timeSlot.timeString} on $dateKey - skipping');
+            debugPrint(
+                'Notification already scheduled for ${timeSlot.timeString} on $dateKey - skipping');
             continue;
           }
 
@@ -376,7 +389,8 @@ class NotificationService extends ChangeNotifier {
         }
       }
 
-      debugPrint('=== Scheduling complete: $scheduledCount new notifications scheduled, $alreadyScheduledCount already exist, $skippedCount skipped ===');
+      debugPrint(
+          '=== Scheduling complete: $scheduledCount new notifications scheduled, $alreadyScheduledCount already exist, $skippedCount skipped ===');
     } catch (e, stackTrace) {
       debugPrint('ERROR in scheduleAllGroupedNotifications: $e');
       debugPrint('Stack trace: $stackTrace');
@@ -387,17 +401,21 @@ class NotificationService extends ChangeNotifier {
   /// Schedule notifications for a medication (legacy method - now calls grouped scheduling)
   /// This is kept for backward compatibility but now reschedules all medications
   Future<void> scheduleMedicationNotifications(Medication medication) async {
-    debugPrint('=== scheduleMedicationNotifications called for ${medication.name} ===');
-    debugPrint('NOTE: This now triggers rescheduling of ALL medications (grouped by time slot)');
+    debugPrint(
+        '=== scheduleMedicationNotifications called for ${medication.name} ===');
+    debugPrint(
+        'NOTE: This now triggers rescheduling of ALL medications (grouped by time slot)');
 
     // For backward compatibility, we'll need access to all medications
     // This will be called from MedicationService context, so we'll need to pass all medications
     // For now, we'll just log that this needs to be updated
-    debugPrint('WARNING: scheduleMedicationNotifications should be replaced with scheduleAllGroupedNotifications');
+    debugPrint(
+        'WARNING: scheduleMedicationNotifications should be replaced with scheduleAllGroupedNotifications');
   }
 
   /// Group medications by their scheduled time slots
-  Map<TimeSlot, List<Medication>> _groupMedicationsByTimeSlot(List<Medication> medications) {
+  Map<TimeSlot, List<Medication>> _groupMedicationsByTimeSlot(
+      List<Medication> medications) {
     final Map<TimeSlot, List<Medication>> groups = {};
 
     for (final medication in medications) {
@@ -437,7 +455,8 @@ class NotificationService extends ChangeNotifier {
     final difference = scheduledDateTime.difference(now);
     final tzScheduledDate = tzNow.add(difference);
 
-    final notificationId = _getTimeSlotNotificationId(timeSlot, scheduledDateTime);
+    final notificationId =
+        _getTimeSlotNotificationId(timeSlot, scheduledDateTime);
 
     final androidDetails = AndroidNotificationDetails(
       'medtime_reminders',
@@ -481,10 +500,12 @@ class NotificationService extends ChangeNotifier {
     }
 
     // Payload format: "timeslot|HH:MM|YYYY-MM-DD"
-    final dateKey = '${scheduledDateTime.year}-${scheduledDateTime.month.toString().padLeft(2, '0')}-${scheduledDateTime.day.toString().padLeft(2, '0')}';
+    final dateKey =
+        '${scheduledDateTime.year}-${scheduledDateTime.month.toString().padLeft(2, '0')}-${scheduledDateTime.day.toString().padLeft(2, '0')}';
     final payload = 'timeslot|${timeSlot.timeString}|$dateKey';
 
-    debugPrint('Scheduling grouped notification: $title at ${scheduledDateTime.toString()} (ID: $notificationId)');
+    debugPrint(
+        'Scheduling grouped notification: $title at ${scheduledDateTime.toString()} (ID: $notificationId)');
     debugPrint('  Medications: ${medications.map((m) => m.name).join(", ")}');
     debugPrint('  Payload: $payload');
 
@@ -676,34 +697,42 @@ class NotificationService extends ChangeNotifier {
   /// Note: With grouped notifications, this will cancel time slot notifications that include this medication
   /// This is less precise but necessary for backward compatibility
   Future<void> cancelMedicationNotifications(String medicationId) async {
-    debugPrint('WARNING: cancelMedicationNotifications is less precise with grouped notifications.');
-    debugPrint('Consider using cancelTimeSlotNotifications or rescheduling all notifications instead.');
+    debugPrint(
+        'WARNING: cancelMedicationNotifications is less precise with grouped notifications.');
+    debugPrint(
+        'Consider using cancelTimeSlotNotifications or rescheduling all notifications instead.');
 
     // With grouped notifications, we can't easily cancel just one medication's notifications
     // The best approach is to reschedule all notifications, which will exclude this medication
     // For now, we'll just log this
-    debugPrint('Medication $medicationId notifications should be handled by rescheduling all grouped notifications');
+    debugPrint(
+        'Medication $medicationId notifications should be handled by rescheduling all grouped notifications');
   }
 
   /// Cancel notifications for a specific time slot and date
-  Future<void> cancelTimeSlotNotifications(TimeSlot timeSlot, DateTime date) async {
-    final dateKey = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  Future<void> cancelTimeSlotNotifications(
+      TimeSlot timeSlot, DateTime date) async {
+    final dateKey =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     final payloadPrefix = 'timeslot|${timeSlot.timeString}|$dateKey';
-    final reminderPayloadPrefix = 'reminder|timeslot|${timeSlot.timeString}|$dateKey';
+    final reminderPayloadPrefix =
+        'reminder|timeslot|${timeSlot.timeString}|$dateKey';
 
-    final pendingNotifications = await _notifications.pendingNotificationRequests();
+    final pendingNotifications =
+        await _notifications.pendingNotificationRequests();
     int cancelledCount = 0;
 
     for (final notification in pendingNotifications) {
       if (notification.payload != null &&
           (notification.payload!.startsWith(payloadPrefix) ||
-           notification.payload!.startsWith(reminderPayloadPrefix))) {
+              notification.payload!.startsWith(reminderPayloadPrefix))) {
         await _notifications.cancel(notification.id);
         cancelledCount++;
       }
     }
 
-    debugPrint('Cancelled $cancelledCount notifications for time slot ${timeSlot.timeString} on $dateKey');
+    debugPrint(
+        'Cancelled $cancelledCount notifications for time slot ${timeSlot.timeString} on $dateKey');
   }
 
   /// Cancel all notifications
@@ -715,7 +744,8 @@ class NotificationService extends ChangeNotifier {
   /// This helps maintain a clean notification list
   Future<void> cleanupExpiredNotifications() async {
     final now = DateTime.now();
-    final pendingNotifications = await _notifications.pendingNotificationRequests();
+    final pendingNotifications =
+        await _notifications.pendingNotificationRequests();
     int cleanedCount = 0;
 
     for (final notification in pendingNotifications) {
@@ -737,7 +767,8 @@ class NotificationService extends ChangeNotifier {
               );
 
               // If notification date is more than 1 day in the past, cancel it
-              if (notificationDate.isBefore(now.subtract(const Duration(days: 1)))) {
+              if (notificationDate
+                  .isBefore(now.subtract(const Duration(days: 1)))) {
                 await _notifications.cancel(notification.id);
                 cleanedCount++;
               }
@@ -811,12 +842,14 @@ class NotificationService extends ChangeNotifier {
     String body = 'Reminder to take your medications at $timeStr';
 
     // Payload format: "reminder|timeslot|HH:MM|YYYY-MM-DD"
-    final dateKey = '${originalScheduledDateTime.year}-${originalScheduledDateTime.month.toString().padLeft(2, '0')}-${originalScheduledDateTime.day.toString().padLeft(2, '0')}';
+    final dateKey =
+        '${originalScheduledDateTime.year}-${originalScheduledDateTime.month.toString().padLeft(2, '0')}-${originalScheduledDateTime.day.toString().padLeft(2, '0')}';
     final payload = 'reminder|timeslot|${timeSlot.timeString}|$dateKey';
 
     final reminderId = _getTimeSlotReminderId(timeSlot, reminderTime);
 
-    debugPrint('Scheduling time slot reminder: $timeStr at ${reminderTime.toString()} (ID: $reminderId)');
+    debugPrint(
+        'Scheduling time slot reminder: $timeStr at ${reminderTime.toString()} (ID: $reminderId)');
     debugPrint('  Original scheduled time: $originalScheduledDateTime');
     debugPrint('  Payload: $payload');
 
@@ -861,10 +894,12 @@ class NotificationService extends ChangeNotifier {
     MedicationDose dose,
     int intervalMinutes,
   ) async {
-    debugPrint('WARNING: scheduleReminder(medication, dose) is deprecated. Use scheduleTimeSlotReminder instead.');
+    debugPrint(
+        'WARNING: scheduleReminder(medication, dose) is deprecated. Use scheduleTimeSlotReminder instead.');
 
     // Extract time slot from dose
-    final timeSlot = TimeSlot(hour: dose.scheduledTime.hour, minute: dose.scheduledTime.minute);
+    final timeSlot = TimeSlot(
+        hour: dose.scheduledTime.hour, minute: dose.scheduledTime.minute);
 
     // Schedule time slot reminder
     await scheduleTimeSlotReminder(

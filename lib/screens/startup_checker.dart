@@ -74,19 +74,23 @@ class _StartupCheckerState extends State<StartupChecker> {
 
     // CRITICAL: Ensure grouped notifications are scheduled for all enabled medications
     // This fixes the issue where notifications don't fire when app is closed
-    debugPrint('StartupChecker: Scheduling grouped notifications for all enabled medications');
-    final notificationService = Provider.of<NotificationService>(context, listen: false);
+    debugPrint(
+        'StartupChecker: Scheduling grouped notifications for all enabled medications');
+    final notificationService =
+        Provider.of<NotificationService>(context, listen: false);
 
     // Clean up expired notifications first (maintains clean list)
     await notificationService.cleanupExpiredNotifications();
 
     // Schedule all grouped notifications (one per time slot)
     // This maintains a rolling 7-day window - only schedules missing notifications
-    await notificationService.scheduleAllGroupedNotifications(enabledMedications);
+    await notificationService
+        .scheduleAllGroupedNotifications(enabledMedications);
 
     // Auto-dismiss doses that are too old (based on timeout setting)
     final now = DateTime.now();
-    final settingsService = Provider.of<AppSettingsService>(context, listen: false);
+    final settingsService =
+        Provider.of<AppSettingsService>(context, listen: false);
     final timeoutHours = settingsService.missedDoseTimeoutHours;
     final timeoutCutoff = now.subtract(Duration(hours: timeoutHours));
 
@@ -97,8 +101,10 @@ class _StartupCheckerState extends State<StartupChecker> {
         if (!dose.isTaken &&
             !dose.skipped &&
             dose.scheduledTime.isBefore(timeoutCutoff)) {
-          debugPrint('Auto-dismissing old missed dose: ${medication.name} at ${dose.scheduledTime} (${timeoutHours}h timeout)');
-          adherenceService.markDoseSkipped(dose.id, notes: 'Auto-dismissed after ${timeoutHours}h timeout');
+          debugPrint(
+              'Auto-dismissing old missed dose: ${medication.name} at ${dose.scheduledTime} (${timeoutHours}h timeout)');
+          adherenceService.markDoseSkipped(dose.id,
+              notes: 'Auto-dismissed after ${timeoutHours}h timeout');
           hasAutoDismissed = true;
         }
       }
@@ -137,7 +143,8 @@ class _StartupCheckerState extends State<StartupChecker> {
           final timeSinceScheduled = now.difference(dose.scheduledTime);
           final minutesSinceScheduled = timeSinceScheduled.inMinutes;
 
-          debugPrint('      Checking reminder for time slot ${dose.scheduledTime.hour}:${dose.scheduledTime.minute.toString().padLeft(2, '0')}');
+          debugPrint(
+              '      Checking reminder for time slot ${dose.scheduledTime.hour}:${dose.scheduledTime.minute.toString().padLeft(2, '0')}');
           debugPrint('        Scheduled: ${dose.scheduledTime}');
           debugPrint('        Now: $now');
           debugPrint('        Minutes since scheduled: $minutesSinceScheduled');
@@ -151,15 +158,20 @@ class _StartupCheckerState extends State<StartupChecker> {
               Duration(minutes: reminderInterval * (intervalsPassed + 1)),
             );
 
-            final minutesUntilNextReminder = nextReminderTime.difference(now).inMinutes;
+            final minutesUntilNextReminder =
+                nextReminderTime.difference(now).inMinutes;
 
             debugPrint('        Next reminder should be at: $nextReminderTime');
-            debugPrint('        Minutes until next reminder: $minutesUntilNextReminder');
+            debugPrint(
+                '        Minutes until next reminder: $minutesUntilNextReminder');
 
             if (minutesUntilNextReminder > 0) {
               // Schedule time slot reminder
-              final timeSlot = TimeSlot(hour: dose.scheduledTime.hour, minute: dose.scheduledTime.minute);
-              debugPrint('      Scheduling follow-up reminder for time slot ${timeSlot.timeString} in $minutesUntilNextReminder minutes');
+              final timeSlot = TimeSlot(
+                  hour: dose.scheduledTime.hour,
+                  minute: dose.scheduledTime.minute);
+              debugPrint(
+                  '      Scheduling follow-up reminder for time slot ${timeSlot.timeString} in $minutesUntilNextReminder minutes');
               await notificationService.scheduleTimeSlotReminder(
                 timeSlot,
                 dose.scheduledTime,
@@ -167,8 +179,11 @@ class _StartupCheckerState extends State<StartupChecker> {
               );
             } else if (minutesUntilNextReminder >= -2) {
               // Within 2 minutes of the reminder time, schedule immediately
-              final timeSlot = TimeSlot(hour: dose.scheduledTime.hour, minute: dose.scheduledTime.minute);
-              debugPrint('      Scheduling immediate follow-up reminder for time slot ${timeSlot.timeString} (past due)');
+              final timeSlot = TimeSlot(
+                  hour: dose.scheduledTime.hour,
+                  minute: dose.scheduledTime.minute);
+              debugPrint(
+                  '      Scheduling immediate follow-up reminder for time slot ${timeSlot.timeString} (past due)');
               await notificationService.scheduleTimeSlotReminder(
                 timeSlot,
                 dose.scheduledTime,
@@ -179,10 +194,14 @@ class _StartupCheckerState extends State<StartupChecker> {
               final nextNextReminderTime = nextReminderTime.add(
                 Duration(minutes: reminderInterval),
               );
-              final minutesUntilNextNext = nextNextReminderTime.difference(now).inMinutes;
+              final minutesUntilNextNext =
+                  nextNextReminderTime.difference(now).inMinutes;
               if (minutesUntilNextNext > 0) {
-                final timeSlot = TimeSlot(hour: dose.scheduledTime.hour, minute: dose.scheduledTime.minute);
-                debugPrint('      Scheduling next follow-up reminder for time slot ${timeSlot.timeString} in $minutesUntilNextNext minutes');
+                final timeSlot = TimeSlot(
+                    hour: dose.scheduledTime.hour,
+                    minute: dose.scheduledTime.minute);
+                debugPrint(
+                    '      Scheduling next follow-up reminder for time slot ${timeSlot.timeString} in $minutesUntilNextNext minutes');
                 await notificationService.scheduleTimeSlotReminder(
                   timeSlot,
                   dose.scheduledTime,
@@ -191,11 +210,16 @@ class _StartupCheckerState extends State<StartupChecker> {
               }
             }
           } else {
-            debugPrint('      Reminder interval not yet reached (${reminderInterval - minutesSinceScheduled} minutes remaining)');
+            debugPrint(
+                '      Reminder interval not yet reached (${reminderInterval - minutesSinceScheduled} minutes remaining)');
             // Schedule the first reminder for when the interval is reached
-            final minutesUntilReminder = reminderInterval - minutesSinceScheduled;
-            final timeSlot = TimeSlot(hour: dose.scheduledTime.hour, minute: dose.scheduledTime.minute);
-            debugPrint('      Scheduling first reminder for time slot ${timeSlot.timeString} in $minutesUntilReminder minutes');
+            final minutesUntilReminder =
+                reminderInterval - minutesSinceScheduled;
+            final timeSlot = TimeSlot(
+                hour: dose.scheduledTime.hour,
+                minute: dose.scheduledTime.minute);
+            debugPrint(
+                '      Scheduling first reminder for time slot ${timeSlot.timeString} in $minutesUntilReminder minutes');
             await notificationService.scheduleTimeSlotReminder(
               timeSlot,
               dose.scheduledTime,

@@ -20,8 +20,7 @@ class MissedDosesReminderScreen extends StatefulWidget {
       _MissedDosesReminderScreenState();
 }
 
-class _MissedDosesReminderScreenState
-    extends State<MissedDosesReminderScreen> {
+class _MissedDosesReminderScreenState extends State<MissedDosesReminderScreen> {
   final Map<String, bool> _processingDoses = {};
 
   @override
@@ -180,9 +179,7 @@ class _MissedDosesReminderScreenState
                 child: Row(
                   children: [
                     Icon(
-                      remainingDoses == 0
-                          ? Icons.check_circle
-                          : Icons.warning,
+                      remainingDoses == 0 ? Icons.check_circle : Icons.warning,
                       color: Colors.white,
                     ),
                     const SizedBox(width: 12),
@@ -322,7 +319,9 @@ class _MissedDosesReminderScreenState
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: isMissed ? Colors.red[900]?.withOpacity(0.3) : Colors.orange[900]?.withOpacity(0.3),
+      color: isMissed
+          ? Colors.red[900]?.withOpacity(0.3)
+          : Colors.orange[900]?.withOpacity(0.3),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -342,9 +341,10 @@ class _MissedDosesReminderScreenState
                     children: [
                       Text(
                         medication.name,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                       ),
                       if (medication.dosageInstruction.isNotEmpty)
                         Text(
@@ -583,4 +583,3 @@ class _MissedDosesReminderScreenState
     }
   }
 }
-

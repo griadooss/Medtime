@@ -651,15 +651,20 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
 
         // Reschedule all grouped notifications (since medications are grouped by time slot)
         final allMedications = medicationService.medications;
-        final enabledMedications = allMedications.where((m) => m.enabled).toList();
-        await notificationService.scheduleAllGroupedNotifications(enabledMedications);
+        final enabledMedications =
+            allMedications.where((m) => m.enabled).toList();
+        await notificationService
+            .scheduleAllGroupedNotifications(enabledMedications);
 
-        debugPrint('Rescheduled grouped notifications for all ${enabledMedications.length} enabled medications');
+        debugPrint(
+            'Rescheduled grouped notifications for all ${enabledMedications.length} enabled medications');
       } else {
         // Medication is disabled - reschedule all to remove it from time slot notifications
         final allMedications = medicationService.medications;
-        final enabledMedications = allMedications.where((m) => m.enabled).toList();
-        await notificationService.scheduleAllGroupedNotifications(enabledMedications);
+        final enabledMedications =
+            allMedications.where((m) => m.enabled).toList();
+        await notificationService
+            .scheduleAllGroupedNotifications(enabledMedications);
         debugPrint('Rescheduled grouped notifications (medication disabled)');
       }
 
@@ -733,8 +738,10 @@ class _MedicationEditScreenState extends State<MedicationEditScreen> {
 
       // Reschedule all grouped notifications (to remove this medication from time slots)
       final allMedications = medicationService.medications;
-      final enabledMedications = allMedications.where((m) => m.enabled).toList();
-      await notificationService.scheduleAllGroupedNotifications(enabledMedications);
+      final enabledMedications =
+          allMedications.where((m) => m.enabled).toList();
+      await notificationService
+          .scheduleAllGroupedNotifications(enabledMedications);
 
       if (!context.mounted) return;
       Navigator.pop(context);

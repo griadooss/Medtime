@@ -90,10 +90,12 @@ class _MedtimeAppState extends State<MedtimeApp> {
 
       // Parse time slot and date from payload
       final timeSlot = notificationService.parseTimeSlotFromPayload(payload);
-      final notificationDate = notificationService.parseDateFromPayload(payload);
+      final notificationDate =
+          notificationService.parseDateFromPayload(payload);
 
       if (timeSlot == null || notificationDate == null) {
-        debugPrint('ERROR: Could not parse time slot or date from payload: $payload');
+        debugPrint(
+            'ERROR: Could not parse time slot or date from payload: $payload');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Error: Invalid notification payload'),
@@ -112,8 +114,7 @@ class _MedtimeAppState extends State<MedtimeApp> {
 
         // Check if medication has this time slot
         return med.times.any((time) =>
-          time.hour == timeSlot.hour && time.minute == timeSlot.minute
-        );
+            time.hour == timeSlot.hour && time.minute == timeSlot.minute);
       }).toList();
 
       if (medicationsForTimeSlot.isEmpty) {
@@ -127,11 +128,13 @@ class _MedtimeAppState extends State<MedtimeApp> {
         return;
       }
 
-      debugPrint('Found ${medicationsForTimeSlot.length} medications for time slot ${timeSlot.timeString}');
+      debugPrint(
+          'Found ${medicationsForTimeSlot.length} medications for time slot ${timeSlot.timeString}');
 
       // Get doses needing attention for these medications, filtered by time slot
       final medicationIds = medicationsForTimeSlot.map((m) => m.id).toList();
-      final allDosesNeedingAttention = adherenceService.getDosesNeedingAttention(
+      final allDosesNeedingAttention =
+          adherenceService.getDosesNeedingAttention(
         medicationIds: medicationIds,
       );
 
@@ -143,12 +146,14 @@ class _MedtimeAppState extends State<MedtimeApp> {
 
         // Filter doses for this date and time slot
         final matchingDoses = doses.where((dose) {
-          final doseDate = DateTime(dose.scheduledTime.year, dose.scheduledTime.month, dose.scheduledTime.day);
-          final notificationDateOnly = DateTime(notificationDate.year, notificationDate.month, notificationDate.day);
+          final doseDate = DateTime(dose.scheduledTime.year,
+              dose.scheduledTime.month, dose.scheduledTime.day);
+          final notificationDateOnly = DateTime(notificationDate.year,
+              notificationDate.month, notificationDate.day);
 
           return doseDate.isAtSameMomentAs(notificationDateOnly) &&
-                 dose.scheduledTime.hour == timeSlot.hour &&
-                 dose.scheduledTime.minute == timeSlot.minute;
+              dose.scheduledTime.hour == timeSlot.hour &&
+              dose.scheduledTime.minute == timeSlot.minute;
         }).toList();
 
         if (matchingDoses.isNotEmpty) {
@@ -172,7 +177,8 @@ class _MedtimeAppState extends State<MedtimeApp> {
 
     // Legacy handling for old medication ID based payloads (backward compatibility)
     debugPrint('Legacy medication ID payload detected: $payload');
-    debugPrint('WARNING: This is the old notification format. Consider rescheduling notifications.');
+    debugPrint(
+        'WARNING: This is the old notification format. Consider rescheduling notifications.');
 
     // For backward compatibility, show all missed doses
     final enabledMedications = medicationService.enabledMedications;
