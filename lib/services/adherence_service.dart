@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/medication_dose.dart';
 import '../models/medication.dart';
+import 'notification_service.dart';
 
 /// Service for tracking medication adherence
 class AdherenceService extends ChangeNotifier {
@@ -53,14 +54,28 @@ class AdherenceService extends ChangeNotifier {
   }
 
   /// Mark a dose as taken
-  Future<void> markDoseTaken(String doseId, {String? notes}) async {
+  /// Note: notificationService is optional to avoid circular dependencies
+  /// If provided, will cancel pending reminders for this dose
+  Future<void> markDoseTaken(String doseId,
+      {String? notes, NotificationService? notificationService}) async {
     final index = _doses.indexWhere((d) => d.id == doseId);
     if (index != -1) {
+      final dose = _doses[index];
       _doses[index] = _doses[index].copyWith(
         takenTime: DateTime.now(),
         notes: notes,
       );
       await _saveDoses();
+
+      // Cancel any pending reminders for this dose
+      if (notificationService != null) {
+        try {
+          await notificationService.cancelRemindersForDose(dose.scheduledTime);
+        } catch (e) {
+          debugPrint('Error cancelling reminders for dose: $e');
+        }
+      }
+
       notifyListeners();
     }
   }

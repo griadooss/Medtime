@@ -135,6 +135,7 @@ class _StartupCheckerState extends State<StartupChecker> {
 
         // If dose is missed and medication has "Remind Me" behavior, schedule follow-up
         // Group reminders by time slot to avoid duplicate notifications
+        // IMPORTANT: Double-check dose status to ensure it hasn't been taken since we last checked
         if (dose.isMissed(now) &&
             medication.notificationBehavior == NotificationBehavior.remind &&
             !dose.isTaken &&

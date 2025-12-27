@@ -735,6 +735,16 @@ class NotificationService extends ChangeNotifier {
         'Cancelled $cancelledCount notifications for time slot ${timeSlot.timeString} on $dateKey');
   }
 
+  /// Cancel all reminders for a specific scheduled dose time
+  /// This is called when a dose is marked as taken to prevent unnecessary reminders
+  Future<void> cancelRemindersForDose(DateTime scheduledTime) async {
+    final timeSlot =
+        TimeSlot(hour: scheduledTime.hour, minute: scheduledTime.minute);
+    await cancelTimeSlotNotifications(timeSlot, scheduledTime);
+    debugPrint(
+        'Cancelled all reminders for dose scheduled at ${scheduledTime.toString()}');
+  }
+
   /// Cancel all notifications
   Future<void> cancelAllNotifications() async {
     await _notifications.cancelAll();

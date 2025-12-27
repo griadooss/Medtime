@@ -248,199 +248,234 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           builder: (context) => AlertDialog(
                                             title: const Text(
                                                 'Pending Notifications'),
-                                            content: SingleChildScrollView(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Text(
-                                                    'Total: ${pending.length}',
-                                                    style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  if (testNotification
-                                                      .isNotEmpty) ...[
-                                                    const SizedBox(height: 8),
-                                                    Container(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8),
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.green[900]
-                                                            ?.withOpacity(0.3),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(4),
-                                                      ),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          const Text(
-                                                            'Test Notification Found:',
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          Text(
-                                                              'ID: ${testNotification.first.id}'),
-                                                          Text(
-                                                              'Title: ${testNotification.first.title}'),
-                                                          Text(
-                                                              'Body: ${testNotification.first.body}'),
-                                                        ],
-                                                      ),
+                                            content: ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                maxHeight:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .height *
+                                                        0.7,
+                                              ),
+                                              child: SingleChildScrollView(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      'Total: ${pending.length}',
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
                                                     ),
-                                                  ],
-                                                  const SizedBox(height: 16),
-                                                  const Text(
-                                                    'Upcoming notifications (sorted by time):',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  const SizedBox(height: 8),
-                                                  ..._parseAndSortNotifications(
-                                                          pending)
-                                                      .take(20)
-                                                      .map((info) {
-                                                    return Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              bottom: 12),
-                                                      child: Container(
+                                                    if (testNotification
+                                                        .isNotEmpty) ...[
+                                                      const SizedBox(height: 8),
+                                                      Container(
                                                         padding:
                                                             const EdgeInsets
-                                                                .all(12),
+                                                                .all(8),
                                                         decoration:
                                                             BoxDecoration(
                                                           color: Colors
-                                                              .grey[900]
+                                                              .green[900]
                                                               ?.withOpacity(
-                                                                  0.5),
+                                                                  0.3),
                                                           borderRadius:
                                                               BorderRadius
-                                                                  .circular(8),
-                                                          border: Border.all(
-                                                            color: info
-                                                                    .isReminder
-                                                                ? Colors.orange[
-                                                                    700]!
-                                                                : Colors.green[
-                                                                    700]!,
-                                                            width: 1,
-                                                          ),
+                                                                  .circular(4),
                                                         ),
                                                         child: Column(
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            // Date and time header
-                                                            Row(
-                                                              children: [
-                                                                Icon(
-                                                                  Icons
-                                                                      .schedule,
-                                                                  size: 16,
-                                                                  color: Colors
-                                                                          .green[
-                                                                      300],
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 6),
-                                                                Text(
-                                                                  info.formattedDateTime,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                            .green[
-                                                                        300],
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        15,
-                                                                  ),
-                                                                ),
-                                                                if (info
-                                                                    .isReminder) ...[
-                                                                  const SizedBox(
-                                                                      width: 8),
-                                                                  Container(
-                                                                    padding:
-                                                                        const EdgeInsets
-                                                                            .symmetric(
-                                                                      horizontal:
-                                                                          6,
-                                                                      vertical:
-                                                                          2,
-                                                                    ),
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      color: Colors
-                                                                          .orange[
-                                                                              900]
-                                                                          ?.withOpacity(
-                                                                              0.5),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              4),
-                                                                    ),
-                                                                    child: Text(
-                                                                      'REMINDER',
-                                                                      style:
-                                                                          TextStyle(
-                                                                        color: Colors
-                                                                            .orange[300],
-                                                                        fontSize:
-                                                                            10,
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ],
+                                                            const Text(
+                                                              'Test Notification Found:',
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
                                                             ),
-                                                            const SizedBox(
-                                                                height: 8),
-                                                            // Title
                                                             Text(
-                                                              info.title,
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                fontSize: 14,
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 4),
-                                                            // Body/description
-                                                            if (info.description
-                                                                .isNotEmpty)
-                                                              Text(
-                                                                info.description,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize: 12,
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      400],
-                                                                ),
-                                                              ),
+                                                                'ID: ${testNotification.first.id}'),
+                                                            Text(
+                                                                'Title: ${testNotification.first.title}'),
+                                                            Text(
+                                                                'Body: ${testNotification.first.body}'),
                                                           ],
                                                         ),
                                                       ),
-                                                    );
-                                                  }),
-                                                ],
+                                                    ],
+                                                    const SizedBox(height: 16),
+                                                    const Text(
+                                                      'Upcoming notifications (sorted by time):',
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                    ..._parseAndSortNotifications(
+                                                            pending)
+                                                        .take(20)
+                                                        .map((info) {
+                                                      return Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                bottom: 12),
+                                                        child: Container(
+                                                          width:
+                                                              double.infinity,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(12),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors
+                                                                .grey[900]
+                                                                ?.withOpacity(
+                                                                    0.5),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            border: Border.all(
+                                                              color: info
+                                                                      .isReminder
+                                                                  ? Colors.orange[
+                                                                      700]!
+                                                                  : Colors.green[
+                                                                      700]!,
+                                                              width: 1,
+                                                            ),
+                                                          ),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              // Date and time header
+                                                              Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons
+                                                                        .schedule,
+                                                                    size: 16,
+                                                                    color: Colors
+                                                                            .green[
+                                                                        300],
+                                                                  ),
+                                                                  const SizedBox(
+                                                                      width: 6),
+                                                                  Flexible(
+                                                                    child: Text(
+                                                                      info.formattedDateTime,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .green[300],
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontSize:
+                                                                            15,
+                                                                      ),
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                  if (info
+                                                                      .isReminder) ...[
+                                                                    const SizedBox(
+                                                                        width:
+                                                                            8),
+                                                                    Container(
+                                                                      padding:
+                                                                          const EdgeInsets
+                                                                              .symmetric(
+                                                                        horizontal:
+                                                                            6,
+                                                                        vertical:
+                                                                            2,
+                                                                      ),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        color: Colors
+                                                                            .orange[900]
+                                                                            ?.withOpacity(0.5),
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(4),
+                                                                      ),
+                                                                      child:
+                                                                          Text(
+                                                                        'REMINDER',
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              Colors.orange[300],
+                                                                          fontSize:
+                                                                              10,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ],
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 8),
+                                                              // Title
+                                                              Text(
+                                                                info.title,
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 14,
+                                                                ),
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                maxLines: 2,
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 4),
+                                                              // Body/description
+                                                              if (info
+                                                                  .description
+                                                                  .isNotEmpty)
+                                                                Text(
+                                                                  info.description,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Colors
+                                                                            .grey[
+                                                                        400],
+                                                                  ),
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  maxLines: 2,
+                                                                ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                             actions: [
@@ -1413,23 +1448,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
 
       String formattedDateTime;
+      final hour = scheduledDateTime.hour.toString().padLeft(2, '0');
+      final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
+
       if (scheduledDate.isAtSameMomentAs(today)) {
-        // Today - show time only
-        final hour = scheduledDateTime.hour;
-        final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
-        final period = hour >= 12 ? 'PM' : 'AM';
-        final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-        formattedDateTime = 'Today at $displayHour:$minute $period';
+        // Today - show time only in 24-hour format
+        formattedDateTime = 'Today at $hour:$minute';
       } else if (scheduledDate
           .isAtSameMomentAs(today.add(const Duration(days: 1)))) {
-        // Tomorrow
-        final hour = scheduledDateTime.hour;
-        final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
-        final period = hour >= 12 ? 'PM' : 'AM';
-        final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-        formattedDateTime = 'Tomorrow at $displayHour:$minute $period';
+        // Tomorrow - show time in 24-hour format
+        formattedDateTime = 'Tomorrow at $hour:$minute';
       } else {
-        // Other dates - show full date and time
+        // Other dates - show full date and time in 24-hour format
         final monthNames = [
           'Jan',
           'Feb',
@@ -1444,12 +1474,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           'Nov',
           'Dec'
         ];
-        final hour = scheduledDateTime.hour;
-        final minute = scheduledDateTime.minute.toString().padLeft(2, '0');
-        final period = hour >= 12 ? 'PM' : 'AM';
-        final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
         formattedDateTime =
-            '${scheduledDateTime.day} ${monthNames[scheduledDateTime.month - 1]} ${scheduledDateTime.year} at $displayHour:$minute $period';
+            '${scheduledDateTime.day} ${monthNames[scheduledDateTime.month - 1]} ${scheduledDateTime.year} at $hour:$minute';
       }
 
       parsed.add(_NotificationInfo(

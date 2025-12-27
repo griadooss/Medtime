@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/medication.dart';
 import '../models/medication_dose.dart';
 import '../services/adherence_service.dart';
+import '../services/notification_service.dart';
 
 /// Dialog for marking a medication dose as taken or skipped
 class DoseMarkingDialog extends StatefulWidget {
@@ -150,6 +151,9 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
               final doseId = widget.existingDose?.id ??
                   '${correctMedicationId}_${widget.scheduledTime.millisecondsSinceEpoch}';
 
+              // Get notification service to cancel reminders
+              final notificationService = context.read<NotificationService>();
+
               // Create dose if it doesn't exist
               if (widget.existingDose == null) {
                 final dose = MedicationDose(
@@ -160,8 +164,15 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
                   notes: _notes,
                 );
                 await adherenceService.addScheduledDose(dose);
+                // Cancel reminders for this dose
+                await notificationService
+                    .cancelRemindersForDose(widget.scheduledTime);
               } else {
-                await adherenceService.markDoseTaken(doseId, notes: _notes);
+                await adherenceService.markDoseTaken(
+                  doseId,
+                  notes: _notes,
+                  notificationService: notificationService,
+                );
               }
 
               if (context.mounted) {
@@ -192,10 +203,9 @@ class _DoseMarkingDialogState extends State<DoseMarkingDialog> {
   }
 
   String _formatTime(DateTime dateTime) {
-    final hour = dateTime.hour;
-    final minute = dateTime.minute;
-    final period = hour >= 12 ? 'PM' : 'AM';
-    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    return '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    // Format in 24-hour format
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 }
