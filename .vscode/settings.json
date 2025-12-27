@@ -1,7 +1,7 @@
 {
   // Dart/Flutter specific settings
   "[dart]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": true,  // Only format Dart files on save, not on open
     "editor.formatOnType": false,
     "editor.formatOnPaste": false,
     "editor.defaultFormatter": "Dart-Code.dart-code",
@@ -10,7 +10,10 @@
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestSelection": "first",
     "editor.tabCompletion": "onlySnippets",
-    "editor.wordBasedSuggestions": "off"
+    "editor.wordBasedSuggestions": "off",
+    // Explicitly disable file-level formatting for Dart files
+    "files.insertFinalNewline": false,
+    "files.trimTrailingWhitespace": false
   },
 
   // Use Dart formatter for Dart files
@@ -39,8 +42,9 @@
   // VS Code/Cursor's built-in EditorConfig support was applying rules automatically
   // If files still show as modified, run: git update-index --refresh
 
-  // Format on save (pre-commit hook will also format before commits)
-  "editor.formatOnSave": true,
+  // Format on save - DISABLED globally, enabled only for Dart files below
+  // Pre-commit hook will format before commits
+  "editor.formatOnSave": false,
   "editor.formatOnSaveMode": "file",
 
   // Prevent automatic formatting on file open
