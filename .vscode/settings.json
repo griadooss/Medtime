@@ -23,17 +23,15 @@
   },
 
   // Editor settings
-  "editor.trimAutoWhitespace": true,
+  "editor.trimAutoWhitespace": false,  // Disable to prevent auto-modification
   // Disable auto-insert final newline to prevent files showing as modified on open
-  // The .editorconfig file will still be respected by other tools
   "files.insertFinalNewline": false,
-  "files.trimTrailingWhitespace": true,
+  "files.trimTrailingWhitespace": false,  // Disable to prevent auto-modification
   "files.trimFinalNewlines": false,
   "files.eol": "\n",
-
-  // Disable VS Code/Cursor's built-in EditorConfig support
-  // This prevents .editorconfig from auto-applying rules on file open
-  "editorconfig.enable": false,
+  
+  // Note: .editorconfig has been removed to prevent auto-modification on file open
+  // VS Code/Cursor's built-in EditorConfig support was applying rules automatically
 
   // Format on save (pre-commit hook will also format before commits)
   "editor.formatOnSave": true,
