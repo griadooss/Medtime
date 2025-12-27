@@ -32,7 +32,7 @@
   // Format on save (pre-commit hook will also format before commits)
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
-  
+
   // Prevent automatic formatting on file open
   "editor.formatOnType": false,
   "editor.formatOnPaste": false,
