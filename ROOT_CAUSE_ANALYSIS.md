@@ -84,3 +84,5 @@ wc -c < .gitattributes
 
 The fact that `git update-index --refresh` says "needs update" confirms files ARE being modified, not just a git index issue.
 
+
+

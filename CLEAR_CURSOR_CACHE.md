@@ -35,3 +35,5 @@ Then use: `git fix-whitespace` whenever files show as modified.
 
 Even after removing `.editorconfig`, Cursor may have cached the rules in its workspace state. Clearing the cache forces Cursor to re-read the current project state without the `.editorconfig` file.
 
+
+

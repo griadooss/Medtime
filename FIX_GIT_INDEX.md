@@ -51,3 +51,5 @@ Cursor/VS Code may:
 
 The `git update-index --refresh` command forces git to re-read the actual file contents and update its index, clearing false positives.
 
+
+

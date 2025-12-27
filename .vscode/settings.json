@@ -71,3 +71,4 @@
   // All auto-formatting is disabled to prevent Cursor from modifying files on open
   // Pre-commit hook will still format Dart files before commits
 }
+

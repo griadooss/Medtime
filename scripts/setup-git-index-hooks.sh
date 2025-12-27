@@ -29,3 +29,5 @@ echo "  - git merge"
 echo ""
 echo "This prevents false 'modified' file reports when git index gets out of sync."
 
+
+
