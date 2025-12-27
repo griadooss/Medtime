@@ -30,7 +30,7 @@
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": false,
   "files.eol": "\n",
-  
+
   // Disable VS Code/Cursor's built-in EditorConfig support
   // This prevents .editorconfig from auto-applying rules on file open
   "editorconfig.enable": false,
