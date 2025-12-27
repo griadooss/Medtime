@@ -22,16 +22,22 @@
     "*.dart": "dart"
   },
 
-  // Editor settings
-  "editor.trimAutoWhitespace": false,  // Disable to prevent auto-modification
-  // Disable auto-insert final newline to prevent files showing as modified on open
+  // Editor settings - ALL AUTO-FORMATTING DISABLED to prevent file modifications
+  "editor.trimAutoWhitespace": false,
   "files.insertFinalNewline": false,
-  "files.trimTrailingWhitespace": false,  // Disable to prevent auto-modification
+  "files.trimTrailingWhitespace": false,
   "files.trimFinalNewlines": false,
   "files.eol": "\n",
   
+  // Disable file watchers that might trigger modifications
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/node_modules/**": true
+  },
+  
   // Note: .editorconfig has been removed to prevent auto-modification on file open
   // VS Code/Cursor's built-in EditorConfig support was applying rules automatically
+  // If files still show as modified, run: git update-index --refresh
 
   // Format on save (pre-commit hook will also format before commits)
   "editor.formatOnSave": true,
