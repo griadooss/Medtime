@@ -39,13 +39,12 @@
 
   // EditorConfig extension settings (prevents auto-format on file open)
   "editorconfig.generateAuto": false,
+  "editorconfig.autoFixOnSave": false,
 
   // Note: If files show as modified after opening in Cursor, it's likely
   // the EditorConfig extension applying insert_final_newline. This is harmless
   // and can be committed, or you can disable the EditorConfig extension.
-
-  // Note: A pre-commit git hook automatically formats Dart files before commits
-  // This ensures consistent formatting even if formatOnSave is disabled
+  // To disable: Extensions > Search "EditorConfig" > Disable/Uninstall
 
   // Exclude build and generated files from formatting
   "files.exclude": {
@@ -58,21 +57,3 @@
     "**/build": true
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
