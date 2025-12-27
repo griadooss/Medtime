@@ -8,3 +8,27 @@
 # TEST_SCHEDULE.md
 # docs/deployment/EDGE_TO_EDGE_FIX.md
 # scripts/README.md
+
+# Build artifacts
+.dart_tool/
+build/
+android/build/
+*.iml
+medtime.iml
+
+# Flutter/Dart
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
