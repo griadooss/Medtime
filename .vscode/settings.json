@@ -1,7 +1,31 @@
 {
-  // Dart/Flutter specific settings
+  // CRITICAL: Disable ALL auto-formatting to prevent Cursor from modifying files
+  // These settings prevent files from being modified when opened in Cursor
+  
+  // Global settings - apply to ALL file types
+  "editor.trimAutoWhitespace": false,
+  "files.insertFinalNewline": false,
+  "files.trimTrailingWhitespace": false,
+  "files.trimFinalNewlines": false,
+  "files.eol": "\n",
+  "files.autoSave": "off",
+  "editor.formatOnSave": false,
+  "editor.formatOnType": false,
+  "editor.formatOnPaste": false,
+  
+  // Disable formatting for ALL file types by default
+  "[*]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
+    "editor.formatOnPaste": false,
+    "files.insertFinalNewline": false,
+    "files.trimTrailingWhitespace": false,
+    "editor.trimAutoWhitespace": false
+  },
+  
+  // Dart/Flutter specific settings - ONLY format on save, never on open
   "[dart]": {
-    "editor.formatOnSave": true,  // Only format Dart files on save, not on open
+    "editor.formatOnSave": true,  // Only format when user explicitly saves
     "editor.formatOnType": false,
     "editor.formatOnPaste": false,
     "editor.defaultFormatter": "Dart-Code.dart-code",
@@ -11,9 +35,10 @@
     "editor.suggestSelection": "first",
     "editor.tabCompletion": "onlySnippets",
     "editor.wordBasedSuggestions": "off",
-    // Explicitly disable file-level formatting for Dart files
+    // Explicitly disable file-level formatting
     "files.insertFinalNewline": false,
-    "files.trimTrailingWhitespace": false
+    "files.trimTrailingWhitespace": false,
+    "editor.trimAutoWhitespace": false
   },
 
   // Use Dart formatter for Dart files
@@ -24,42 +49,12 @@
   "files.associations": {
     "*.dart": "dart"
   },
-
-  // Editor settings - ALL AUTO-FORMATTING DISABLED to prevent file modifications
-  "editor.trimAutoWhitespace": false,
-  "files.insertFinalNewline": false,
-  "files.trimTrailingWhitespace": false,
-  "files.trimFinalNewlines": false,
-  "files.eol": "\n",
-  "files.autoSave": "off",  // Disable auto-save to prevent any modifications
-  
-  // CRITICAL: Disable ALL formatting for ALL file types by default
-  "[*]": {
-    "editor.formatOnSave": false,
-    "editor.formatOnType": false,
-    "editor.formatOnPaste": false,
-    "files.insertFinalNewline": false,
-    "files.trimTrailingWhitespace": false,
-    "editor.trimAutoWhitespace": false
-  },
   
   // Disable file watchers that might trigger modifications
   "files.watcherExclude": {
     "**/.git/**": true,
     "**/node_modules/**": true
   },
-  
-  // Note: .editorconfig has been removed to prevent auto-modification on file open
-  // VS Code/Cursor's built-in EditorConfig support was applying rules automatically
-
-  // Format on save - DISABLED globally, enabled only for Dart files below
-  // Pre-commit hook will format before commits
-  "editor.formatOnSave": false,
-  "editor.formatOnSaveMode": "file",
-
-  // Prevent automatic formatting on file open
-  "editor.formatOnType": false,
-  "editor.formatOnPaste": false
 
   // Exclude build and generated files from formatting
   "files.exclude": {
@@ -70,5 +65,9 @@
     "**/.pub-cache": true,
     "**/.pub": true,
     "**/build": true
-  }
+  },
+  
+  // Note: .editorconfig has been removed to prevent auto-modification
+  // All auto-formatting is disabled to prevent Cursor from modifying files on open
+  // Pre-commit hook will still format Dart files before commits
 }
