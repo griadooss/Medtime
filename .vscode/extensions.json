@@ -5,7 +5,11 @@
   ],
   "unwantedRecommendations": [
     "editorconfig.editorconfig"
+  ],
+  "recommendationsIgnore": [
+    "editorconfig.editorconfig"
   ]
 }
+
 
 
