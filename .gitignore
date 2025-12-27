@@ -24,7 +24,10 @@ medtime.iml
 
 # IDE
 .idea/
-.vscode/
+# Note: .vscode/settings.json and .vscode/extensions.json should be tracked
+# Only ignore IDE-specific cache files
+.vscode/launch.json
+.vscode/tasks.json
 *.swp
 *.swo
 *~
