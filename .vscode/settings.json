@@ -31,6 +31,17 @@
   "files.trimTrailingWhitespace": false,
   "files.trimFinalNewlines": false,
   "files.eol": "\n",
+  "files.autoSave": "off",  // Disable auto-save to prevent any modifications
+  
+  // CRITICAL: Disable ALL formatting for ALL file types by default
+  "[*]": {
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
+    "editor.formatOnPaste": false,
+    "files.insertFinalNewline": false,
+    "files.trimTrailingWhitespace": false,
+    "editor.trimAutoWhitespace": false
+  },
   
   // Disable file watchers that might trigger modifications
   "files.watcherExclude": {
@@ -40,7 +51,6 @@
   
   // Note: .editorconfig has been removed to prevent auto-modification on file open
   // VS Code/Cursor's built-in EditorConfig support was applying rules automatically
-  // If files still show as modified, run: git update-index --refresh
 
   // Format on save - DISABLED globally, enabled only for Dart files below
   // Pre-commit hook will format before commits
@@ -49,13 +59,7 @@
 
   // Prevent automatic formatting on file open
   "editor.formatOnType": false,
-  "editor.formatOnPaste": false,
-
-  // EditorConfig extension settings
-  // Keep EditorConfig enabled but prevent auto-modification on file open
-  "editorconfig.generateAuto": false,
-  "editorconfig.autoFixOnSave": true,  // Apply EditorConfig rules on save (not on open)
-  "editorconfig.fixOnSave": true,      // Alternative setting name
+  "editor.formatOnPaste": false
 
   // Exclude build and generated files from formatting
   "files.exclude": {
