@@ -37,14 +37,11 @@
   "editor.formatOnType": false,
   "editor.formatOnPaste": false,
 
-  // EditorConfig extension settings (prevents auto-format on file open)
+  // EditorConfig extension settings
+  // Keep EditorConfig enabled but prevent auto-modification on file open
   "editorconfig.generateAuto": false,
-  "editorconfig.autoFixOnSave": false,
-
-  // Note: If files show as modified after opening in Cursor, it's likely
-  // the EditorConfig extension applying insert_final_newline. This is harmless
-  // and can be committed, or you can disable the EditorConfig extension.
-  // To disable: Extensions > Search "EditorConfig" > Disable/Uninstall
+  "editorconfig.autoFixOnSave": true,  // Apply EditorConfig rules on save (not on open)
+  "editorconfig.fixOnSave": true,      // Alternative setting name
 
   // Exclude build and generated files from formatting
   "files.exclude": {
