@@ -23,9 +23,9 @@
     "editor.trimAutoWhitespace": false
   },
   
-  // Dart/Flutter specific settings - ONLY format on save, never on open
+  // Dart/Flutter specific settings - DISABLED formatOnSave to prevent ANY modifications
   "[dart]": {
-    "editor.formatOnSave": true,  // Only format when user explicitly saves
+    "editor.formatOnSave": false,  // DISABLED - pre-commit hook will format instead
     "editor.formatOnType": false,
     "editor.formatOnPaste": false,
     "editor.defaultFormatter": "Dart-Code.dart-code",
@@ -41,9 +41,9 @@
     "editor.trimAutoWhitespace": false
   },
 
-  // Use Dart formatter for Dart files
+  // Dart formatter settings - DISABLED to prevent any automatic formatting
   "dart.lineLength": 80,
-  "dart.enableSdkFormatter": true,
+  "dart.enableSdkFormatter": false,  // DISABLED - prevent any automatic formatting
 
   // File associations
   "files.associations": {
