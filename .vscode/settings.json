@@ -31,7 +31,7 @@
   // Format on save (pre-commit hook will also format before commits)
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
-  
+
   // Note: A pre-commit git hook automatically formats Dart files before commits
   // This ensures consistent formatting even if formatOnSave is disabled
 
